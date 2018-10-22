@@ -1,0 +1,25 @@
+{
+  "FileVersion": 1,
+  "Version": 1,
+  "VersionName": "1.0",
+  "FriendlyName": "Technocrane Plugin",
+  "Description": "Technocrane Tracking Plugin.",
+  "Category": "Tracking",
+  "CreatedBy": "Technocrane r.s.o.",
+  "CreatedByURL": "http://supertechno.com",
+  "DocsURL": "",
+  "MarketplaceURL": "",
+  "SupportURL": "https://github.com/technocranes/technocrane-unreal",
+  "EnabledByDefault": false,
+  "CanContainContent": true,
+  "IsBetaVersion": true,
+  "Installed": true,
+  "Modules": [
+    {
+      "Name": "TechnocranePlugin",
+      "Type": "Runtime",
+      "LoadingPhase": "Default",
+      "WhitelistPlatforms": [ "Win64", "Win32" ]
+    }
+  ]
+}
