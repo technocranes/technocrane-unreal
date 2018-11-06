@@ -107,11 +107,26 @@ void ATechnocraneCamera::Tick(float DeltaTime)
 }
 
 #if WITH_EDITOR
+bool ATechnocraneCamera::CanEditChange(const UProperty* InProperty) const
+{
+	const bool ParentVal = Super::CanEditChange(InProperty);
+
+	//show the projectile type dropdown only if the delivery method is projecile
+	if (InProperty->GetFName() == GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, Port))
+		return ParentVal && (Live == false);
+	/*Add any "else if" chains here.*/
+	else
+		return ParentVal;
+}
+
 void ATechnocraneCamera::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
-	SwitchLive();
+	if (PropertyChangedEvent.GetPropertyName() == GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, Live))
+	{
+		SwitchLive();
+	}
 }
 
 void ATechnocraneCamera::PostEditUndo()

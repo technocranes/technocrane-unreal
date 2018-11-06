@@ -68,6 +68,7 @@ public:
 		FVector2D FocusRange;
 
 #if WITH_EDITOR
+	virtual bool CanEditChange(const UProperty* InProperty) const override;
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 	virtual void PostEditUndo() override;
 #endif
