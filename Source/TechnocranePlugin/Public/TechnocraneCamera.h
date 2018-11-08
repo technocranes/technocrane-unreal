@@ -12,8 +12,8 @@
 
 #include "TechnocraneCamera.generated.h"
 
-UCLASS(Blueprintable, ClassGroup = "Technocrane", meta = (BlueprintSpawnableComponent))
-class ATechnocraneCamera : public ACineCameraActor
+UCLASS(Blueprintable, ClassGroup = Technocrane, Category = "Technocrane", meta = (BlueprintSpawnableComponent))
+class TECHNOCRANEPLUGIN_API ATechnocraneCamera : public ACineCameraActor
 {
 	GENERATED_BODY()
 	

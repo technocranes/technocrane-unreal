@@ -1,4 +1,7 @@
-// Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
+// Copyright (c) 2018 Technocrane s.r.o. 
+//
+// TechnocranePlugin.Build.cs
+// Sergei <Neill3d> Solokhin 2018
 
 using Path = System.IO.Path;
 

@@ -12,6 +12,9 @@
 #include "Engine/CollisionProfile.h"
 #include "DrawDebugHelpers.h"
 
+#include <Runtime/CinematicCamera/Public/CineCameraActor.h>
+#include <Runtime/CinematicCamera/Public/CineCameraComponent.h>
+
 #include <IPluginManager.h>
 #include <Paths.h>
 
@@ -317,10 +320,16 @@ void ATechnocraneRig::UpdatePreviewMeshes()
 		
 		FVector raw_rotation = FVector::ZeroVector;
 
-		if (AActor* otherActor = TargetComponent.OtherActor)
+		ATechnocraneCamera* myCineCamera = Cast<ATechnocraneCamera>(TargetComponent.OtherActor);
+		if (myCineCamera != nullptr)
 		{
-			FTransform camera_transform = otherActor->GetTransform();
-			
+			FTransform camera_transform = myCineCamera->GetTransform();
+
+			if (UCineCameraComponent* comp = myCineCamera->GetCineCameraComponent())
+			{
+				 camera_transform = comp->GetRelativeTransform() * camera_transform;
+			}
+
 			// add some camera pivot offset
 			FTransform pivot_offset;
 			pivot_offset.SetLocation(CameraPivotOffset);
@@ -328,18 +337,16 @@ void ATechnocraneRig::UpdatePreviewMeshes()
 			target = pivot_offset * camera_transform;
 			
 			// check for track position
-			ATechnocraneCamera* myCineCamera = Cast<ATechnocraneCamera>(otherActor);
-			if (myCineCamera != nullptr)
-			{
-				TrackPosition = myCineCamera->TrackPosition;
-				raw_rotation = myCineCamera->RawRotation;
-			}
+			
+			TrackPosition = myCineCamera->TrackPosition;
+			raw_rotation = myCineCamera->RawRotation;
+			
 		}
 			
 		const FTransform& base = PreviewMesh_CraneBase->GetComponentTransform();
 		const float track_position = TrackPosition;
 		const FQuat neck_q = FQuat::MakeFromEuler(FVector(90.0f, 0.0f, 180.0f + raw_rotation.X));
-
+		
 		TechnocraneRig.Impl->Compute(GetWorld(), base, target.GetLocation(), track_position, raw_rotation, neck_q);
 	}
 }

@@ -36,7 +36,7 @@ public:
 };
 
 UCLASS(Blueprintable, ClassGroup = "Technocrane", meta = (BlueprintSpawnableComponent))
-class ATechnocraneRig : public AActor
+class TECHNOCRANEPLUGIN_API ATechnocraneRig : public AActor
 {
 	GENERATED_BODY()
 

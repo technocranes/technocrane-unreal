@@ -42,6 +42,7 @@ ATechnocraneCamera::ATechnocraneCamera(const FObjectInitializer& ObjectInitializ
 	ZoomRange = FVector2D(0.0f, 100.0f);
 	IrisRange = FVector2D(0.0f, 100.0f);
 	FocusRange = FVector2D(0.0f, 100.0f);
+
 }
 ATechnocraneCamera::~ATechnocraneCamera()
 {
@@ -82,11 +83,13 @@ void ATechnocraneCamera::Tick(float DeltaTime)
 			HasTimeCode = packet.HasTimeCode();
 			PacketNumber = packet.PacketNumber;
 
-			SetActorLocation(v);
-			SetActorRotation(rot);
-
+			//SetActorLocation(v);
+			//SetActorRotation(rot);
+			
 			if (UCineCameraComponent* comp = GetCineCameraComponent())
 			{
+				comp->SetRelativeLocationAndRotation(v, rot);
+
 				double zoom = 1.0;
 				NTechnocrane::ComputeZoom(zoom, packet.Zoom, ZoomRange.X, ZoomRange.Y);
 				comp->CurrentFocalLength = zoom;
