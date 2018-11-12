@@ -20,6 +20,9 @@
 #include "IAssetTypeActions.h"
 
 #include "CameraAssetTypeActions.h"
+#include "CameraDetailsCustomization.h"
+
+#include "TechnocraneCamera.h"
 
 #define LOCTEXT_NAMESPACE "TechnocraneEditor"
 
@@ -38,6 +41,7 @@ void RegisterAssetTypeAction(IAssetTools& AssetTools, TSharedRef<IAssetTypeActio
 
 void FTechnocraneEditorModule::StartupModule()
 {
+	// Register the new assets
 	{
 		IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
 
@@ -45,6 +49,17 @@ void FTechnocraneEditorModule::StartupModule()
 
 		RegisterAssetTypeAction(AssetTools, MakeShareable(new FAssetTypeActions_TechnocraneCamera(TechnocraneAssetCategoryBit)));
 
+	}
+
+	// Register the details customizations
+	{
+		FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+		PropertyModule.RegisterCustomClassLayout(ATechnocraneCamera::StaticClass()->GetFName(), FOnGetDetailCustomizationInstance::CreateStatic(&FCameraDetailsCustomization::MakeInstance));
+		
+		//@TODO: Struct registration should happen using ::StaticStruct, not by string!!!
+		//PropertyModule.RegisterCustomPropertyTypeLayout( "SpritePolygonCollection", FOnGetPropertyTypeCustomizationInstance::CreateStatic( &FSpritePolygonCollectionCustomization::MakeInstance ) );
+
+		PropertyModule.NotifyCustomizationModuleChanged();
 	}
 }
 

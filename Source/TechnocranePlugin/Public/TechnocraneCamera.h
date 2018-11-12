@@ -31,40 +31,49 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	/** Controls the amount of rails for the crane rig. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Connection", meta = (ClampMin = 0, ClampMax = 10))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Connection, meta = (ClampMin = 0, ClampMax = 10))
 		int Port;
 
-	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = "Connection")
+	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = Connection)
 		bool Live;
 
-	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = "Connection")
-		float SpaceScale;
-
-	UPROPERTY(SimpleDisplay, NoClear, BlueprintReadOnly, Category = "Tracking Data")
+	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Raw Tracking Data")
 		float TrackPosition;
 	
-	UPROPERTY(SimpleDisplay, NoClear, BlueprintReadOnly, Category = "Tracking Data")
+	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Raw Tracking Data")
 		FVector RawPosition;
 
-	UPROPERTY(SimpleDisplay, NoClear, BlueprintReadOnly, Category = "Tracking Data")
+	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Raw Tracking Data")
 		FVector RawRotation;
 
-	UPROPERTY(SimpleDisplay, NoClear, BlueprintReadOnly, Category = "Tracking Data")
+	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Raw Tracking Data")
 		bool HasTimeCode;
 
-	UPROPERTY(SimpleDisplay, NoClear, BlueprintReadOnly, Category = "Tracking Data")
+	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Raw Tracking Data")
 		FVector4 TimeCode;
 
-	UPROPERTY(SimpleDisplay, NoClear, BlueprintReadOnly, Category = "Tracking Data")
+	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Raw Tracking Data")
 		int32 PacketNumber;
 
-	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = "Manual Calibration")
+	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Raw Tracking Data")
+		bool IsZoomCalibrated;
+
+	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Raw Tracking Data")
+		bool IsIrisCalibrated;
+
+	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Raw Tracking Data")
+		bool IsFocusCalibrated;
+
+	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = "Tracking Options")
+		float SpaceScale;
+
+	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = "Tracking Options")
 		FVector2D ZoomRange;
 
-	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = "Manual Calibration")
+	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = "Tracking Options")
 		FVector2D IrisRange;
 
-	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = "Manual Calibration")
+	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = "Tracking Options")
 		FVector2D FocusRange;
 
 #if WITH_EDITOR
