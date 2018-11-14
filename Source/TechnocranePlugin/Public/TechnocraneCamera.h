@@ -22,6 +22,14 @@ public:
 	ATechnocraneCamera(const FObjectInitializer& ObjectInitializer);
 	virtual ~ATechnocraneCamera();
 
+	const bool IsReady() const {
+		return mHardware->IsReady();
+	}
+
+	const int GetLastError() const {
+		return mHardware->GetLastError();
+	}
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -37,31 +45,31 @@ public:
 	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = Connection)
 		bool Live;
 
-	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Raw Tracking Data")
+	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Tracking Raw Data")
 		float TrackPosition;
 	
-	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Raw Tracking Data")
+	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Tracking Raw Data")
 		FVector RawPosition;
 
-	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Raw Tracking Data")
+	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Tracking Raw Data")
 		FVector RawRotation;
 
-	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Raw Tracking Data")
+	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Tracking Raw Data")
 		bool HasTimeCode;
 
-	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Raw Tracking Data")
+	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Tracking Raw Data")
 		FVector4 TimeCode;
 
-	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Raw Tracking Data")
+	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Tracking Raw Data")
 		int32 PacketNumber;
 
-	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Raw Tracking Data")
+	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Tracking Raw Data")
 		bool IsZoomCalibrated;
 
-	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Raw Tracking Data")
+	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Tracking Raw Data")
 		bool IsIrisCalibrated;
 
-	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Raw Tracking Data")
+	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Tracking Raw Data")
 		bool IsFocusCalibrated;
 
 	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = "Tracking Options")

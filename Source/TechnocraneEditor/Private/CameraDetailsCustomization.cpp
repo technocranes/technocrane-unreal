@@ -32,15 +32,15 @@ void FCameraDetailsCustomization::CustomizeDetails(IDetailLayoutBuilder& DetailB
 {
 	// Create a category so this is displayed early in the properties
 	DetailBuilder.EditCategory("Connection", FText::GetEmpty(), ECategoryPriority::Important);
-	DetailBuilder.EditCategory("Tracking Calibration", FText::GetEmpty(), ECategoryPriority::Important);
-	DetailBuilder.EditCategory("Raw Tracking Data", FText::GetEmpty(), ECategoryPriority::Important);
+	DetailBuilder.EditCategory("Tracking Options", FText::GetEmpty(), ECategoryPriority::Important);
+	DetailBuilder.EditCategory("Tracking Raw Data", FText::GetEmpty(), ECategoryPriority::Important);
 
 	// Build the Connection category
 	IDetailCategoryBuilder& ConnectionCategory = DetailBuilder.EditCategory("Connection");
 	BuildConnectionSection(ConnectionCategory, DetailBuilder);
 
 	// Build the Tracking Data category
-	IDetailCategoryBuilder& TrackingDataCategory = DetailBuilder.EditCategory("Tracking Data");
+	IDetailCategoryBuilder& TrackingDataCategory = DetailBuilder.EditCategory("Tracking Raw Data");
 	BuildTrackingDataSection(TrackingDataCategory, DetailBuilder);
 }
 
@@ -98,6 +98,16 @@ void FCameraDetailsCustomization::BuildTrackingDataSection(IDetailCategoryBuilde
 	Category.AddProperty(DetailLayout.GetProperty(GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, PacketNumber)))
 		.DisplayName(LOCTEXT("PacketNumber", "Packet Number"))
 		.Visibility(ShownInfo);
+
+	Category.AddProperty(DetailLayout.GetProperty(GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, IsZoomCalibrated)))
+		.DisplayName(LOCTEXT("IsZoomCalibrated", "Is Zoom Calibrated"))
+		.Visibility(ShownInfo);
+	Category.AddProperty(DetailLayout.GetProperty(GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, IsIrisCalibrated)))
+		.DisplayName(LOCTEXT("IsIrisCalibrated", "Is Iris Calibrated"))
+		.Visibility(ShownInfo);
+	Category.AddProperty(DetailLayout.GetProperty(GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, IsFocusCalibrated)))
+		.DisplayName(LOCTEXT("IsFocusCalibrated", "Is Focus Calibrated"))
+		.Visibility(ShownInfo);
 }
 
 void FCameraDetailsCustomization::BuildConnectionSection(IDetailCategoryBuilder& Category, IDetailLayoutBuilder& DetailLayout)
@@ -135,7 +145,33 @@ FText FCameraDetailsCustomization::GetConnectionStatusText(TWeakObjectPtr<ATechn
 
 	if (ATechnocraneCamera* CameraBeingEdited = WeakSprite.Get())
 	{
-		HeaderDisplayText = LOCTEXT("Status", "Ready For Connection");
+		
+		const bool isReady = CameraBeingEdited->IsReady();
+		const int last_error = CameraBeingEdited->GetLastError();
+
+		if (isReady)
+		{
+			HeaderDisplayText = LOCTEXT("Status", "Connection Established, Tracking");
+		}
+		else
+		{
+			if (last_error == TECHNOCRANE_NO_ERROR)
+			{
+				HeaderDisplayText = LOCTEXT("Status", "Ready For Connection");
+			}
+			else if (last_error == TECHNOCRANE_NO_PORTS)
+			{
+				HeaderDisplayText = LOCTEXT("Status", TECHNOCRANE_NO_PORTS_MSG);
+			}
+			else if (last_error == TECHNOCRANE_SERIAL_FAILED)
+			{
+				HeaderDisplayText = LOCTEXT("Status", TECHNOCRANE_SERIAL_FAILED_MSG);
+			}
+			else
+			{
+				HeaderDisplayText = LOCTEXT("Status", "Unknown Connection Error");
+			}
+		}
 	}
 
 	return HeaderDisplayText;
