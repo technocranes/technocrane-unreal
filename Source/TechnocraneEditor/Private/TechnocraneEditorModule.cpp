@@ -24,6 +24,10 @@
 
 #include "TechnocraneCamera.h"
 
+// Settings
+#include "TechnocraneRuntimeSettings.h"
+#include "ISettingsModule.h"
+
 #define LOCTEXT_NAMESPACE "TechnocraneEditor"
 
 IMPLEMENT_MODULE(FTechnocraneEditorModule, FTechnocraneEditor)
@@ -37,6 +41,25 @@ void RegisterAssetTypeAction(IAssetTools& AssetTools, TSharedRef<IAssetTypeActio
 {
 	AssetTools.RegisterAssetTypeActions(Action);
 	CreatedAssetTypeActions.Add(Action);
+}
+
+void RegisterSettings()
+{
+	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
+	{
+		SettingsModule->RegisterSettings("Project", "Plugins", "TechnocranePlugin",
+			LOCTEXT("RuntimeSettingsName", "Technocrane Tracker"),
+			LOCTEXT("RuntimeSettingsDescription", "Configure the Technocrane plugin"),
+			GetMutableDefault<UTechnocraneRuntimeSettings>());
+	}
+}
+
+void UnregisterSettings()
+{
+	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
+	{
+		SettingsModule->UnregisterSettings("Project", "Plugins", "TechnocranePlugin");
+	}
 }
 
 void FTechnocraneEditorModule::StartupModule()
@@ -61,10 +84,15 @@ void FTechnocraneEditorModule::StartupModule()
 
 		PropertyModule.NotifyCustomizationModuleChanged();
 	}
+
+	// Settings
+	RegisterSettings();
 }
 
 void FTechnocraneEditorModule::ShutdownModule()
 {
+	UnregisterSettings();
+
 	// Unregister all the asset types that we registered
 	if (FModuleManager::Get().IsModuleLoaded("AssetTools"))
 	{

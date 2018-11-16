@@ -5,6 +5,7 @@
 
 #include "TechnocranePrivatePCH.h"
 #include <Public/TechnocraneCamera.h>
+#include <Public/TechnocraneRuntimeSettings.h>
 #include <Public/ITechnocranePlugin.h>
 #include <Runtime/CinematicCamera/Public/CineCameraComponent.h>
 
@@ -31,9 +32,9 @@ ATechnocraneCamera::ATechnocraneCamera(const FObjectInitializer& ObjectInitializ
 	}
 
 	//
-	Port = 1;
-	Live = false;
-	SpaceScale = 100.0f;
+	Port = GetDefault<UTechnocraneRuntimeSettings>()->bPortIdByDefault;
+	Live = GetDefault<UTechnocraneRuntimeSettings>()->bLiveByDefault;
+	SpaceScale = GetDefault<UTechnocraneRuntimeSettings>()->bSpaceScaleByDefault;
 	TrackPosition = 0.0f;
 
 	SetActorScale3D(FVector(0.5f, 0.5f, 0.5f));

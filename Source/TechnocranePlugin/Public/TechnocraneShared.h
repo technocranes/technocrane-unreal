@@ -2,6 +2,8 @@
 
 // Copyright (c) 2018 Technocrane s.r.o. 
 //
+// https://github.com/technocranes/technocrane-unreal
+//
 // TechnocraneShared.h
 // Sergei <Neill3d> Solokhin 2018
 
