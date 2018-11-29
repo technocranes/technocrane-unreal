@@ -29,9 +29,13 @@ public:
 
 	// Specify a default port index for a Technocrane Camera
 	UPROPERTY(EditAnywhere, config, Category = Settings)
-	int bPortIdByDefault;
+	int PortIdByDefault;
 
 	// Specify a default packet raw data space scale
 	UPROPERTY(EditAnywhere, config, Category=Settings)
-	float bSpaceScaleByDefault;
+	float SpaceScaleByDefault;
+	
+	// Specify a default packet raw data space scale
+	UPROPERTY(EditAnywhere, config, Category = Settings)
+	bool bPacketContainsRawAndCalibratedData;
 };

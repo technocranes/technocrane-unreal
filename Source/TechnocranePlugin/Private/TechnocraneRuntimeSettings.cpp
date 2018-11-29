@@ -9,6 +9,7 @@
 UTechnocraneRuntimeSettings::UTechnocraneRuntimeSettings()
 {
 	bLiveByDefault = false;
-	bPortIdByDefault = 1;
-	bSpaceScaleByDefault = 100.0f;
+	PortIdByDefault = 1;
+	SpaceScaleByDefault = 100.0f;
+	bPacketContainsRawAndCalibratedData = false;
 }

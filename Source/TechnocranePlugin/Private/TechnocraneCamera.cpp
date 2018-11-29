@@ -32,9 +32,10 @@ ATechnocraneCamera::ATechnocraneCamera(const FObjectInitializer& ObjectInitializ
 	}
 
 	//
-	Port = GetDefault<UTechnocraneRuntimeSettings>()->bPortIdByDefault;
+	Port = GetDefault<UTechnocraneRuntimeSettings>()->PortIdByDefault;
 	Live = GetDefault<UTechnocraneRuntimeSettings>()->bLiveByDefault;
-	SpaceScale = GetDefault<UTechnocraneRuntimeSettings>()->bSpaceScaleByDefault;
+
+	SpaceScale = GetDefault<UTechnocraneRuntimeSettings>()->SpaceScaleByDefault;
 	TrackPosition = 0.0f;
 
 	SetActorScale3D(FVector(0.5f, 0.5f, 0.5f));
@@ -66,10 +67,12 @@ void ATechnocraneCamera::Tick(float DeltaTime)
 {
 	if (Live && mHardware)
 	{
+		const bool packed_data = GetDefault<UTechnocraneRuntimeSettings>()->bPacketContainsRawAndCalibratedData;
+
 		size_t index = 0;
 		NTechnocrane::STechnocrane_Packet	packet;
 
-		if (mHardware->FetchDataPacket(packet, 1, index) > 0)
+		if (mHardware->FetchDataPacket(packet, 1, index, packed_data) > 0)
 		{
 			FVector		v(SpaceScale * packet.Position[0],
 							SpaceScale * packet.Position[1],
@@ -92,15 +95,15 @@ void ATechnocraneCamera::Tick(float DeltaTime)
 				comp->SetRelativeLocationAndRotation(v, rot);
 
 				double zoom = 1.0;
-				NTechnocrane::ComputeZoom(zoom, packet.Zoom, ZoomRange.X, ZoomRange.Y);
+				IsZoomCalibrated = NTechnocrane::ComputeZoom(zoom, packet.Zoom, ZoomRange.X, ZoomRange.Y);
 				comp->CurrentFocalLength = zoom;
 
 				double iris = 1.0;
-				NTechnocrane::ComputeIris(iris, packet.Iris, IrisRange.X, IrisRange.Y);
+				IsIrisCalibrated = NTechnocrane::ComputeIris(iris, packet.Iris, IrisRange.X, IrisRange.Y);
 				comp->CurrentAperture = iris;
 
 				double focus = 1.0;
-				NTechnocrane::ComputeFocus(focus, packet.Focus, FocusRange.X, FocusRange.Y);
+				IsFocusCalibrated = NTechnocrane::ComputeFocus(focus, packet.Focus, FocusRange.X, FocusRange.Y);
 				comp->FocusSettings.ManualFocusDistance = focus;
 			}
 		}

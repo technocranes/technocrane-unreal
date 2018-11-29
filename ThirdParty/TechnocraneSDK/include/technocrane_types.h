@@ -30,8 +30,8 @@ namespace NTechnocrane
 #define		TECHNOCRANE_SERIAL_FAILED		2
 #define		TECHNOCRANE_SERIAL_FAILED_MSG	"Failed to Activate Serial Port"
 
-	constexpr unsigned int		default_port = 1;
-	constexpr float				default_fps = 25.0f;	// PAL
+#define		default_port	1
+#define		default_fps		25.0f	// PAL
 
 	////////////////////////////////////////////////////////////////////////////////
 	// SAvaliablePortList

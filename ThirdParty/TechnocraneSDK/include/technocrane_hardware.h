@@ -54,7 +54,7 @@ namespace NTechnocrane
 		//--- Packet query
 
 		// packet contains 
-		int	FetchDataPacket(STechnocrane_Packet& packet, size_t localReadIndex, size_t &localReadCount);
+		int	FetchDataPacket(STechnocrane_Packet& packet, size_t localReadIndex, size_t &localReadCount, const bool packed_data);
 
 		//
 		// track last error
