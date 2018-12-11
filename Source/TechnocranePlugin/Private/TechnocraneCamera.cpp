@@ -38,8 +38,8 @@ ATechnocraneCamera::ATechnocraneCamera(const FObjectInitializer& ObjectInitializ
 	SpaceScale = GetDefault<UTechnocraneRuntimeSettings>()->SpaceScaleByDefault;
 	TrackPosition = 0.0f;
 
-	SetActorScale3D(FVector(0.5f, 0.5f, 0.5f));
-
+	//SetActorScale3D(FVector(0.5f, 0.5f, 0.5f));
+	
 	//
 	ZoomRange = FVector2D(0.0f, 100.0f);
 	IrisRange = FVector2D(0.0f, 100.0f);
@@ -104,7 +104,7 @@ void ATechnocraneCamera::Tick(float DeltaTime)
 
 				double focus = 1.0;
 				IsFocusCalibrated = NTechnocrane::ComputeFocus(focus, packet.Focus, FocusRange.X, FocusRange.Y);
-				comp->FocusSettings.ManualFocusDistance = focus;
+				comp->FocusSettings.ManualFocusDistance = SpaceScale * focus;
 			}
 		}
 		
