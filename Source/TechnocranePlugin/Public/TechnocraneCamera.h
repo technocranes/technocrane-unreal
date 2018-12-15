@@ -74,6 +74,21 @@ public:
 	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Tracking Raw Data")
 		bool IsFocusCalibrated;
 
+	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Tracking Raw Data")
+		float RawZoom;
+
+	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Tracking Raw Data")
+		float RawIris;
+
+	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Tracking Raw Data")
+		float RawFocus;
+
+	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Tracking Raw Data")
+		float CalibratedZoom;
+
+	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Tracking Raw Data")
+		float CalibratedFocus;
+
 	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = "Tracking Options")
 		float SpaceScale;
 
