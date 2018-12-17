@@ -12,9 +12,9 @@
 namespace NTechnocrane
 {
 	// helper function for a manual calibration
-	bool TECHNOCRANESDK_API ComputeFocus(double &value, const double src, const double rangeMin, const double rangeMax);
-	bool TECHNOCRANESDK_API ComputeZoom(double &value, const double src, const double rangeMin, const double rangeMax);
-	bool TECHNOCRANESDK_API ComputeIris(double &value, const double src, const double rangeMin, const double rangeMax);
+	bool TECHNOCRANESDK_API ComputeFocus(float &value, const float src, const float rangeMin, const float rangeMax);
+	bool TECHNOCRANESDK_API ComputeZoom(float &value, const float src, const float rangeMin, const float rangeMax);
+	bool TECHNOCRANESDK_API ComputeIris(float &value, const float src, const float rangeMin, const float rangeMax);
 
 	/////////////////////////////////////////////////////////////////////////////////////////////
 	//! Technocrane hardware.
