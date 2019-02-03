@@ -35,14 +35,20 @@ public:
 	FTechnocraneRigImpl()
 	{
 		mComponent = nullptr;
+		mCraneData = nullptr;
 	}
 
 	UPoseableMeshComponent*		mComponent;
-
+	FCraneData*					mCraneData;
 	
 	void SetPoseableMeshComponent(UPoseableMeshComponent* component)
 	{
 		mComponent = component;
+	}
+
+	void SetCranePresetData(FCraneData*	data)
+	{
+		mCraneData = data;
 	}
 
 	FVector ComputeHeadTransform()
@@ -59,13 +65,18 @@ public:
 	}
 
 	// reompute crane transform to fit a target
-	bool Compute(UWorld* pWorld, const FTransform& base, const FVector& target, const float track_position, const FVector& raw_rotation, const FQuat& neck_rotation)
+	bool Compute(UWorld* pWorld, const FVector& target, const float track_position, const FVector& raw_rotation, const FQuat& neck_rotation)
 	{
-		const float ZOffset = 36.f;		// make it appear in the right place
+		if (!mCraneData)
+		{
+			return false;
+		}
+
+		const FTransform& base = mComponent->GetComponentTransform();
+
+		const float ZOffset = mCraneData->ZOffsetOnGround;		// make it appear in the right place
 		FVector const NewLoc(0.0f, track_position, ZOffset);
 		
-		
-
 		const FTransform parentTM = base;
 		const FTransform relativeTM = parentTM.GetRelativeTransformReverse(FTransform(target));
 		FVector vTarget3 = target; // relativeTM.GetLocation();
@@ -279,39 +290,99 @@ ATechnocraneRig::ATechnocraneRig()
 	TransformComponent = CreateDefaultSubobject<USceneComponent>(TEXT("TransformComponent"));
 	RootComponent = TransformComponent;
 
+	MeshComponent = nullptr;
+	LastPreviewModel = ECranePreviewModelsEnum::ECranePreview_Count;
+	
 #if WITH_EDITORONLY_DATA
 	// create preview meshes
 	if (!IsRunningDedicatedServer())
 	{
 		// DONE: how to deal with a plugin assets !
 		
-		const FString CameraPath = TEXT("/TechnocranePlugin/TechnodollyModel");
-		static ConstructorHelpers::FObjectFinder<USkeletalMesh> CraneBaseMesh(*CameraPath);
-		PreviewMesh_CraneBase = CreateOptionalDefaultSubobject<UPoseableMeshComponent>(TEXT("PreviewMesh_CraneBase"));
-		if (PreviewMesh_CraneBase)
+		const FString DataPath = TEXT("/TechnocranePlugin/CranesData");
+		static ConstructorHelpers::FObjectFinder<UDataTable> CraneDataAsset(*DataPath);
+		if (CraneDataAsset.Succeeded())
 		{
-			PreviewMesh_CraneBase->SetSkeletalMesh(CraneBaseMesh.Object);
-			PreviewMesh_CraneBase->bIsEditorOnly = true;
-			PreviewMesh_CraneBase->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
-			PreviewMesh_CraneBase->bHiddenInGame = false;
-			PreviewMesh_CraneBase->CastShadow = true;
-			PreviewMesh_CraneBase->PostPhysicsComponentTick.bCanEverTick = false;
-			
-			PreviewMesh_CraneBase->SetupAttachment(TransformComponent);		// sibling of yawcontrol
-
-			TechnocraneRig.Impl->SetPoseableMeshComponent(PreviewMesh_CraneBase);
+			CranesData = CraneDataAsset.Object;
+			PreloadPreviewMeshes();
+		}
+		else
+		{
+			CranesData = nullptr;
 		}
 
-		UpdatePreviewMeshes();
+		//UpdatePreviewMeshes();
 	}
 #endif
 }
 
 #if WITH_EDITORONLY_DATA
+
+bool ATechnocraneRig::PreloadPreviewMeshes()
+{
+	if (!CranesData)
+	{
+		return false;
+	}
+		
+	const TArray<FName> raw_names = CranesData->GetRowNames();
+
+	for (const FName raw_name : raw_names)
+	{
+		FString model_path("");
+
+		FCraneData* data = CranesData->FindRow<FCraneData>(raw_name, "", false);
+		if (data != nullptr)
+		{
+			model_path = data->CraneModelPath;
+		}
+
+		ConstructorHelpers::FObjectFinder<USkeletalMesh> CraneBaseMesh(*model_path);
+
+		if (CraneBaseMesh.Succeeded())
+		{
+			PreviewMeshes.Add(CraneBaseMesh.Object);
+		}
+	}
+
+	//
+
+	MeshComponent = CreateOptionalDefaultSubobject<UPoseableMeshComponent>(TEXT("preview_mesh"));
+	if (MeshComponent)
+	{
+		MeshComponent->bIsEditorOnly = true;
+		MeshComponent->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
+		MeshComponent->bHiddenInGame = false;
+		MeshComponent->CastShadow = true;
+		MeshComponent->PostPhysicsComponentTick.bCanEverTick = false;
+		MeshComponent->SetupAttachment(TransformComponent);		// sibling of yawcontrol
+
+		TechnocraneRig.Impl->SetPoseableMeshComponent(MeshComponent);
+	}
+	
+	return (PreviewMeshes.Num() > 0);
+}
+
 void ATechnocraneRig::UpdatePreviewMeshes()
 {
-	if (PreviewMesh_CraneBase)
+	
+	if (PreviewMeshes.Num() > 0 && MeshComponent)
 	{
+		if (LastPreviewModel != CraneModel)
+		{
+			
+			// attach another crane
+			USkeletalMesh* preview_mesh = PreviewMeshes[static_cast<int32>(CraneModel)];
+			
+			// crane preset data
+			const FString preset_name(FString::FromInt(static_cast<int32>(CraneModel) + 1));
+			FCraneData* data = CranesData->FindRow<FCraneData>(FName(*preset_name), "", false);
+			TechnocraneRig.Impl->SetCranePresetData(data);
+
+			MeshComponent->SetSkeletalMesh(preview_mesh);
+			
+			LastPreviewModel = CraneModel;
+		}
 
 		// Perform kinematic updates
 
@@ -342,12 +413,11 @@ void ATechnocraneRig::UpdatePreviewMeshes()
 			raw_rotation = myCineCamera->RawRotation;
 			
 		}
-			
-		const FTransform& base = PreviewMesh_CraneBase->GetComponentTransform();
+		
 		const float track_position = TrackPosition;
 		const FQuat neck_q = FQuat::MakeFromEuler(FVector(90.0f, 0.0f, 180.0f + raw_rotation.X));
 		
-		TechnocraneRig.Impl->Compute(GetWorld(), base, target.GetLocation(), track_position, raw_rotation, neck_q);
+		TechnocraneRig.Impl->Compute(GetWorld(), target.GetLocation(), track_position, raw_rotation, neck_q);
 	}
 }
 #endif

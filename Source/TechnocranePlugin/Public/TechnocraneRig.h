@@ -9,18 +9,92 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Engine/DataTable.h"
 #include "TechnocraneRig.generated.h"
-
 
 class USkeletalMeshComponent;
 class UPoseableMeshComponent;
+
+/** Structure that defines a level up table entry */
+USTRUCT(BlueprintType)
+struct FCraneData : public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+
+	FCraneData()
+		: Name("TechnoDolly")
+		, ZOffsetOnGround(36.0f)
+		, ZOffsetOnTracks(20.0f)
+		, TracksSupport(0)
+		, BeamsCount(3)
+		, ColumnCount(0)
+		, TiltMin(55.0f)
+		, TiltMax(55.0f)
+		, PanMin(270.0f)
+		, PanMax(270.0f)
+		, CameraOffsetX(26.0f)
+		, CraneModelPath("/TechnocranePlugin/TechnodollyModel")
+	{}
+
+	
+	/** Name of a crane preset */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+		FString Name;
+
+	/** offset from a ground */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+		float ZOffsetOnGround;
+
+	/** offset from a tracks */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Tracks)
+		float ZOffsetOnTracks;
+
+	/** are tracks supported for the crane preset */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Tracks)
+		int32 TracksSupport;
+
+	/** number of beams in the crane */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+		int32 BeamsCount;
+
+	/** number of columns in the crane */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+		int32 ColumnCount;
+
+	/** Minimum angle to tilt */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Limits)
+		float TiltMin;
+
+	/** Maximum angle to tilt */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Limits)
+		float TiltMax;
+
+	/** Minimum angle to pan */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Limits)
+		float PanMin;
+
+	/** Maximum angle to pan */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Limits)
+		float PanMax;
+
+	/** Camera Pivot Offset */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CameraPivot)
+		float CameraOffsetX;
+
+	/** Icon to use for Achivement */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+		FString CraneModelPath;
+};
 
 /** Shake start offset parameter */
 UENUM(BlueprintType)
 enum class ECranePreviewModelsEnum : uint8
 {
-	ECranePreview_Technodolly		UMETA(DisplayName = "Technodolly"),
-	ECranePreview_Supertechno50		UMETA(DisplayName = "SuperTechno 50 Plus")
+	ECranePreview_Technodolly = 0		UMETA(DisplayName = "Technodolly"),
+	ECranePreview_Supertechno50 = 1		UMETA(DisplayName = "SuperTechno 50 Plus"),
+	ECranePreview_Count					UMETA(Hidden)
 };
 
 class FTechnocraneRigImpl;
@@ -80,6 +154,7 @@ public:
 
 private:
 #if WITH_EDITORONLY_DATA
+	bool PreloadPreviewMeshes();
 	void UpdatePreviewMeshes();
 #endif
 	void UpdateCraneComponents();
@@ -95,11 +170,19 @@ private:
 #if WITH_EDITORONLY_DATA
 	/** Preview meshes for visualization */
 	UPROPERTY()
-		UPoseableMeshComponent* PreviewMesh_CraneBase;
+		TArray<USkeletalMesh*> PreviewMeshes;
+	
+	UPROPERTY()
+		UPoseableMeshComponent*	MeshComponent;
+	
+	/** Data table with crane presets */
+	UPROPERTY()
+		UDataTable*				CranesData;
 #endif
 
 private:
-	FTechnocraneRig			TechnocraneRig;
+	FTechnocraneRig				TechnocraneRig;
+	ECranePreviewModelsEnum		LastPreviewModel;
 
 	bool					mIsNeckRotationSetted;
 };

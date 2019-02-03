@@ -17,11 +17,13 @@ ATechnocraneCamera::ATechnocraneCamera(const FObjectInitializer& ObjectInitializ
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	
 
 	if (ITechnocranePlugin::IsAvailable())
 	{
 		mHardware = new NTechnocrane::CTechnocrane_Hardware();
 		mHardware->Init();
+
 	}
 	
 	//
@@ -30,7 +32,7 @@ ATechnocraneCamera::ATechnocraneCamera(const FObjectInitializer& ObjectInitializ
 		comp->FocusSettings.FocusMethod = ECameraFocusMethod::None;
 		comp->SetFilmbackPresetByName("35mm Full Aperture");
 	}
-
+	
 	//
 	Port = GetDefault<UTechnocraneRuntimeSettings>()->PortIdByDefault;
 	Live = GetDefault<UTechnocraneRuntimeSettings>()->bLiveByDefault;
