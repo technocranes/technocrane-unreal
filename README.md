@@ -1,5 +1,13 @@
-# technocrane-unreal
+# Technocrane Unreal Engine Plugin
+
 Technocrane Tracker Plugin for Unreal Engine
+
+# How to Install
+
+  Create a "Plugins" directory in the project root (near the "Content" directory) and create there sub-folder "TechnocranePlugin". Put the repository folders into the "TechnocranePlugin" folder. (e.g. "/MyProject/Plugins/TechnocranePlugin")
+
+  When you are opening project for a first time, you have to go to Settings->Plugins, find there Technocrane Plugin and Enable it.
+[![TechnocranePlugin](https://github.com/technocranes/technocrane-unreal/blob/master/Images/TechnocranePlugin.JPG)]()
 
 # Contact
 
