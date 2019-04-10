@@ -30,7 +30,7 @@
 
 #define LOCTEXT_NAMESPACE "TechnocraneEditor"
 
-IMPLEMENT_MODULE(FTechnocraneEditorModule, FTechnocraneEditor)
+IMPLEMENT_MODULE(FTechnocraneEditorModule, TechnocraneEditor)
 
 static EAssetTypeCategories::Type TechnocraneAssetCategoryBit;
 

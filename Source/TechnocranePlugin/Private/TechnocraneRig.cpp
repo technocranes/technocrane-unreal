@@ -200,7 +200,7 @@ public:
 
 			if (abs(l) > 0.1f)
 			{
-				FTransform parent_tm = mComponent->GetBoneTransformByName(beam1_name, EBoneSpaces::ComponentSpace);
+				parent_tm = mComponent->GetBoneTransformByName(beam1_name, EBoneSpaces::ComponentSpace);
 
 				const int32 beam2 = static_cast<int32>(ECraneJoints::Beam2);
 				const int32 beam4 = static_cast<int32>(ECraneJoints::Beam4);
@@ -212,7 +212,7 @@ public:
 					if (INDEX_NONE == mComponent->GetBoneIndex(bone_name))
 						continue;
 
-					FTransform tm = mComponent->GetBoneTransformByName(bone_name, EBoneSpaces::ComponentSpace);
+					tm = mComponent->GetBoneTransformByName(bone_name, EBoneSpaces::ComponentSpace);
 					tm.SetToRelativeTransform(parent_tm);
 						
 					FVector tr = tm.GetLocation();
