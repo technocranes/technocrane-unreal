@@ -1,10 +1,11 @@
-// Copyright (c) 2018 Technocrane s.r.o. 
+// Copyright (c) 2019 Technocrane s.r.o. 
 // 
 // TechnocraneShared.cpp
-// Sergei <Neill3d> Solokhin 2018
+// Sergei <Neill3d> Solokhin 2019
 
-#include "TechnocranePrivatePCH.h"
 #include "TechnocraneShared.h"
+#include "TechnocranePrivatePCH.h"
+
 
 const char* g_CraneJointNames[static_cast<int32>(ECraneJoints::JointCount)] = {
 	"jointRoot",

@@ -1,16 +1,16 @@
-// Copyright (c) 2018 Technocrane s.r.o. 
+// Copyright (c) 2019 Technocrane s.r.o. 
 //
 // https://github.com/technocranes/technocrane-unreal
 //
 // TechnocraneCamera.h
-// Sergei <Neill3d> Solokhin 2018
+// Sergei <Neill3d> Solokhin 2019
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include <Runtime/CinematicCamera/Public/CineCameraActor.h>
-#include <../ThirdParty/TechnocraneSDK/include/technocrane_hardware.h>
+#include <ThirdParty/TechnocraneSDK/include/technocrane_hardware.h>
 
 #include "TechnocraneCamera.generated.h"
 

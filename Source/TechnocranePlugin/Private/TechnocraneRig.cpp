@@ -1,10 +1,10 @@
-// Copyright (c) 2018 Technocrane s.r.o. 
+// Copyright (c) 2019 Technocrane s.r.o. 
 //
 // TechnocraneRig.cpp
-// Sergei <Neill3d> Solokhin 2018
+// Sergei <Neill3d> Solokhin 2019
 
-#include "TechnocranePrivatePCH.h"
 #include "TechnocraneRig.h"
+#include "TechnocranePrivatePCH.h"
 #include <UObject/ConstructorHelpers.h>
 #include <Components/SkeletalMeshComponent.h>
 #include <Components/PoseableMeshComponent.h>
@@ -15,11 +15,11 @@
 #include <Runtime/CinematicCamera/Public/CineCameraActor.h>
 #include <Runtime/CinematicCamera/Public/CineCameraComponent.h>
 
-#include <IPluginManager.h>
-#include <Paths.h>
+#include "Interfaces/IPluginManager.h"
+//#include <Paths.h>
 
 #include "TechnocraneShared.h"
-#include <Public/TechnocraneCamera.h>
+#include <TechnocraneCamera.h>
 
 #define LOCTEXT_NAMESPACE "TechnocraneRig_Crane"
 
@@ -290,10 +290,12 @@ ATechnocraneRig::ATechnocraneRig()
 	TransformComponent = CreateDefaultSubobject<USceneComponent>(TEXT("TransformComponent"));
 	RootComponent = TransformComponent;
 
-	MeshComponent = nullptr;
 	LastPreviewModel = ECranePreviewModelsEnum::ECranePreview_Count;
 	
 #if WITH_EDITORONLY_DATA
+
+	MeshComponent = nullptr;
+
 	// create preview meshes
 	if (!IsRunningDedicatedServer())
 	{

@@ -1,10 +1,11 @@
-// Copyright (c) 2018 Technocrane s.r.o. 
+// Copyright (c) 2019 Technocrane s.r.o. 
 //
 // TechnocraneEditorModule.cpp
-// Sergei <Neill3d> Solokhin 2018
+// Sergei <Neill3d> Solokhin 2019
 
-#include "TechnocraneEditorPCH.h"
 #include "TechnocraneEditorModule.h"
+#include "TechnocraneEditorPCH.h"
+
 #include "Stats/Stats.h"
 #include "Modules/ModuleInterface.h"
 #include "Modules/ModuleManager.h"

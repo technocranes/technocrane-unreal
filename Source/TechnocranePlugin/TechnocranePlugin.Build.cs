@@ -1,7 +1,7 @@
-// Copyright (c) 2018 Technocrane s.r.o. 
+// Copyright (c) 2019 Technocrane s.r.o. 
 //
 // TechnocranePlugin.Build.cs
-// Sergei <Neill3d> Solokhin 2018
+// Sergei <Neill3d> Solokhin 2019
 
 using Path = System.IO.Path;
 
@@ -11,23 +11,25 @@ namespace UnrealBuildTool.Rules
 	{
 		public TechnocranePlugin(ReadOnlyTargetRules Target) : base(Target)
 		{
+            PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+            bEnforceIWYU = true;
+            bLegacyPublicIncludePaths = false;
+
+            if (!Target.bUseUnityBuild)
+            {
+                PrivatePCHHeaderFile = "Private/TechnocranePrivatePCH.h";
+#if UE_4_22_OR_LATER
+#else
+                PrivateDependencyModuleNames.Add("LivePP");
+#endif
+            }
+
             PublicDefinitions.Add("TECHNOCRANESDK_IMPORTS");
 
-            PublicIncludePaths.AddRange(
-				new string[] {
-                    "TechnocranePlugin/Public",
-					// ... add public include paths required here ...
-				}
-				);
+            PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Public"));
+            PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Private"));
 
-			PrivateIncludePaths.AddRange(
-				new string[] {
-                    "TechnocranePlugin/Private",
-					// ... add other private include paths required here ...
-				}
-				);
-
-			PublicDependencyModuleNames.AddRange(
+            PublicDependencyModuleNames.AddRange(
 				new string[]
 				{
                     "Core", "Projects", "CoreUObject", "Engine", "InputCore", "CinematicCamera"
@@ -51,8 +53,8 @@ namespace UnrealBuildTool.Rules
 
             /****************************************/
 
-            // If you update this path, ensure the DLL runtime delay load path in FOptitrackNatnetModule::StartupModule stays in sync.
-            string TechnocranePath = Path.GetFullPath(Path.Combine(ModuleDirectory, "..", "..", "ThirdParty", "TechnocraneSDK"));
+            // If you update this path, ensure the DLL runtime delay load path in TechnocraneModule::StartupModule stays in sync.
+            string TechnocranePath = Path.GetFullPath(Path.Combine(ModuleDirectory, "..", "ThirdParty", "TechnocraneSDK"));
             PublicSystemIncludePaths.Add(Path.Combine(TechnocranePath, "include"));
 
             if (Target.Platform == UnrealTargetPlatform.Win32 || Target.Platform == UnrealTargetPlatform.Win64)

@@ -1,10 +1,10 @@
-// Copyright (c) 2018 Technocrane s.r.o. 
+// Copyright (c) 2019 Technocrane s.r.o. 
 //
 // TechnocraneRuntimeSettings.cpp
-// Sergei <Neill3d> Solokhin 2018
+// Sergei <Neill3d> Solokhin 2019
 
-#include "TechnocranePrivatePCH.h"
 #include "TechnocraneRuntimeSettings.h"
+#include "TechnocranePrivatePCH.h"
 
 UTechnocraneRuntimeSettings::UTechnocraneRuntimeSettings()
 {

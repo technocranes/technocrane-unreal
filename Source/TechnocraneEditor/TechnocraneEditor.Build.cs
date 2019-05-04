@@ -1,7 +1,9 @@
-// Copyright (c) 2018 Technocrane s.r.o. 
+// Copyright (c) 2019 Technocrane s.r.o. 
 //
 // TechnocraneEditor.Build.cs
-// Sergei <Neill3d> Solokhin 2018
+// Sergei <Neill3d> Solokhin 2019
+
+using Path = System.IO.Path;
 
 namespace UnrealBuildTool.Rules
 {
@@ -9,6 +11,22 @@ namespace UnrealBuildTool.Rules
 	{
         public TechnocraneEditor(ReadOnlyTargetRules Target) : base(Target)
 		{
+            PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+            bEnforceIWYU = true;
+            bLegacyPublicIncludePaths = false;
+
+            if (!Target.bUseUnityBuild)
+            {
+                PrivatePCHHeaderFile = "Private/VoxelEditorPCH.h";
+#if UE_4_22_OR_LATER
+#else
+                PrivateDependencyModuleNames.Add("LivePP");
+#endif
+            }
+
+            PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Public"));
+            PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Private"));
+
             OptimizeCode = CodeOptimization.Never;
 
             PublicDependencyModuleNames.AddRange(
@@ -23,7 +41,6 @@ namespace UnrealBuildTool.Rules
                     "MainFrame",
                     "RHI",
                     "LevelEditor",
-                    "TechnocranePlugin"
 				}
 			);
 

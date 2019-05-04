@@ -1,11 +1,11 @@
 #pragma once
 
-// Copyright (c) 2018 Technocrane s.r.o. 
+// Copyright (c) 2019 Technocrane s.r.o. 
 //
 // https://github.com/technocranes/technocrane-unreal
 //
 // TechnocraneShared.h
-// Sergei <Neill3d> Solokhin 2018
+// Sergei <Neill3d> Solokhin 2019
 
 #include "CoreMinimal.h"
 

@@ -1,10 +1,10 @@
-// Copyright (c) 2018 Technocrane s.r.o. 
+// Copyright (c) 2019 Technocrane s.r.o. 
 //
 // CameraAssetTypeActions.cpp
-// Sergei <Neill3d> Solokhin 2018
+// Sergei <Neill3d> Solokhin 2019
 
-#include "TechnocraneEditorPCH.h"
 #include "CameraAssetTypeActions.h"
+#include "TechnocraneEditorPCH.h"
 
 #include "TechnocraneCamera.h"
 

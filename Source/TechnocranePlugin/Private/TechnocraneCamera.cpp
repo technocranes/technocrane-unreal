@@ -1,15 +1,15 @@
-// Copyright (c) 2018 Technocrane s.r.o. 
+// Copyright (c) 2019 Technocrane s.r.o. 
 //
 // TechnocraneCamera.cpp
-// Sergei <Neill3d> Solokhin 2018
+// Sergei <Neill3d> Solokhin 2019
 
+#include "TechnocraneCamera.h"
 #include "TechnocranePrivatePCH.h"
-#include <Public/TechnocraneCamera.h>
-#include <Public/TechnocraneRuntimeSettings.h>
-#include <Public/ITechnocranePlugin.h>
+#include "TechnocraneRuntimeSettings.h"
+#include "ITechnocranePlugin.h"
 #include <Runtime/CinematicCamera/Public/CineCameraComponent.h>
 
-#include <../ThirdParty/TechnocraneSDK/include/technocrane_hardware.h>
+#include <ThirdParty/TechnocraneSDK/include/technocrane_hardware.h>
 
 // Sets default values
 ATechnocraneCamera::ATechnocraneCamera(const FObjectInitializer& ObjectInitializer)

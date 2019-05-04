@@ -1,17 +1,16 @@
-// Copyright (c) 2018 Technocrane s.r.o. 
+// Copyright (c) 2019 Technocrane s.r.o. 
 // 
 // TechnocranePlugin.cpp
-// Sergei <Neill3d> Solokhin 2018
+// Sergei <Neill3d> Solokhin 2019s
 
 #include "TechnocranePrivatePCH.h"
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 #include "ITechnocranePlugin.h"
 
-#include <MessageDialog.h>
-#include <IPluginManager.h>
-#include <Paths.h>
-#include <PlatformProcess.h>
+#include "Interfaces/IPluginManager.h"
+//#include <Paths.h>
+//#include <PlatformProcess.h>
 
 //DEFINE_LOG_CATEGORY(LogTechnocrane);
 

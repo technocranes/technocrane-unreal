@@ -8,8 +8,9 @@
 	"CreatedBy": "Technocrane r.s.o.",
 	"CreatedByURL": "http://supertechno.com",
 	"DocsURL": "https://github.com/technocranes/technocrane-unreal",
-	"MarketplaceURL": "",
+	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/7ac283e8aa09461380eaa412284d8087",
 	"SupportURL": "https://github.com/technocranes/technocrane-unreal",
+	"EngineVersion":  "4.22.0",
 	"EnabledByDefault": false,
 	"CanContainContent": true,
 	"IsBetaVersion": false,
@@ -19,15 +20,13 @@
       "Name": "TechnocranePlugin",
       "Type": "Runtime",
       "LoadingPhase": "Default",
-      "WhitelistPlatforms": [
-        "Win64",
-        "Win32"
-      ]
+      "WhitelistPlatforms": "Win64"
     },
     {
       "Name": "TechnocraneEditor",
       "Type": "Editor",
-      "LoadingPhase": "PostEngineInit"
+      "LoadingPhase": "PostEngineInit",
+      "WhitelistPlatforms": "Win64"
     }
   ]
 }
