@@ -356,7 +356,6 @@ bool ATechnocraneRig::PreloadPreviewMeshes()
 		MeshComponent->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
 		MeshComponent->bHiddenInGame = false;
 		MeshComponent->CastShadow = true;
-		MeshComponent->PostPhysicsComponentTick.bCanEverTick = false;
 		MeshComponent->SetupAttachment(TransformComponent);		// sibling of yawcontrol
 
 		TechnocraneRig.Impl->SetPoseableMeshComponent(MeshComponent);

@@ -18,6 +18,7 @@
 #include "Widgets/SToolTip.h"
 
 #include "TechnocraneCamera.h"
+#include <ThirdParty/TechnocraneSDK/include/technocrane_hardware.h>
 
 #define LOCTEXT_NAMESPACE "TechnocraneEditor"
 
@@ -143,10 +144,9 @@ void FCameraDetailsCustomization::BuildConnectionSection(IDetailCategoryBuilder&
 FText FCameraDetailsCustomization::GetConnectionStatusText(TWeakObjectPtr<ATechnocraneCamera> WeakSprite) const
 {
 	FText HeaderDisplayText;
-
+#if defined(TECHNOCRANESDK)
 	if (ATechnocraneCamera* CameraBeingEdited = WeakSprite.Get())
 	{
-		
 		const bool isReady = CameraBeingEdited->IsReady();
 		const int last_error = CameraBeingEdited->GetLastError();
 
@@ -174,7 +174,7 @@ FText FCameraDetailsCustomization::GetConnectionStatusText(TWeakObjectPtr<ATechn
 			}
 		}
 	}
-
+#endif
 	return HeaderDisplayText;
 }
 

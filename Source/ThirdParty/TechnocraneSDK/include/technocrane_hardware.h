@@ -9,6 +9,8 @@
 
 #include "technocrane_types.h"
 
+#if defined(TECHNOCRANESDK)
+
 namespace NTechnocrane
 {
 	// helper function for a manual calibration
@@ -67,3 +69,5 @@ namespace NTechnocrane
 	};
 
 };
+
+#endif

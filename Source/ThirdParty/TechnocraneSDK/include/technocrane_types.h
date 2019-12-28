@@ -10,6 +10,8 @@
 #include <vector>
 #include <string>
 
+#if defined(TECHNOCRANESDK)
+
 namespace NTechnocrane
 {
 
@@ -22,7 +24,7 @@ namespace NTechnocrane
 	typedef std::pair<std::string, unsigned int>	port_pair;
 
 #define		TECHNOCRANE_HELP			"Please visit Technocrane homepage - http://www.supertechno.com/"
-#define		TECHNOCRANE_ABOUT			"TECHNOCRANE s.r.o.\n Developed by Sergei <Neill3d> Solokhin 2018"
+#define		TECHNOCRANE_ABOUT			"TECHNOCRANE s.r.o.\n Developed by Sergei <Neill3d> Solokhin 2019"
 
 #define		TECHNOCRANE_NO_ERROR			0
 #define		TECHNOCRANE_NO_PORTS			1
@@ -173,3 +175,4 @@ namespace NTechnocrane
 
 };
 
+#endif

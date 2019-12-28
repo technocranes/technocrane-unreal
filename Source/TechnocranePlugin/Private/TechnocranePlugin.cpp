@@ -1,7 +1,7 @@
 // Copyright (c) 2019 Technocrane s.r.o. 
 // 
 // TechnocranePlugin.cpp
-// Sergei <Neill3d> Solokhin 2019s
+// Sergei <Neill3d> Solokhin 2019
 
 #include "TechnocranePrivatePCH.h"
 #include "CoreMinimal.h"
@@ -9,10 +9,6 @@
 #include "ITechnocranePlugin.h"
 
 #include "Interfaces/IPluginManager.h"
-//#include <Paths.h>
-//#include <PlatformProcess.h>
-
-//DEFINE_LOG_CATEGORY(LogTechnocrane);
 
 class FTechnocranePlugin : public ITechnocranePlugin
 {
@@ -34,24 +30,35 @@ IMPLEMENT_MODULE(FTechnocranePlugin, TechnocranePlugin )
 void FTechnocranePlugin::StartupModule()
 {
 	// This code will execute after your module is loaded into memory (but after global variables are initialized, of course.)
+	check(TechnocraneLibHandle == nullptr);
 
 	// Note: These paths correspond to the RuntimeDependency specified in the .Build.cs script.
 	const FString PluginBaseDir = IPluginManager::Get().FindPlugin("TechnocranePlugin")->GetBaseDir();
+	const FString TechnocraneDll = TEXT("TechnocraneLib.dll");
 
 #if PLATFORM_WINDOWS && PLATFORM_64BITS
-	const FString LibraryPath = FPaths::Combine(*PluginBaseDir, TEXT("ThirdParty/TechnocraneSDK/lib/Win64/TechnocraneLib.dll"));
+	FString LibraryPath = FPaths::Combine(*PluginBaseDir, TEXT("/Source/ThirdParty/TechnocraneSDK/lib/Win64"));
 #elif PLATFORM_WINDOWS && PLATFORM_32BITS
-	const FString LibraryPath = FPaths::Combine(*PluginBaseDir, TEXT("ThirdParty/TechnocraneSDK/lib/Win32/TechnocraneLib.dll"));
+	FString LibraryPath = FPaths::Combine(*PluginBaseDir, TEXT("/Source/ThirdParty/TechnocraneSDK/lib/Win32"));
 #else
 #	error Path to Technocrane shared library not specified for this platform!
 #endif
+	FPlatformProcess::PushDllDirectory(*LibraryPath);
+	LibraryPath = FPaths::Combine(LibraryPath, TechnocraneDll);
 
-	TechnocraneLibHandle = !LibraryPath.IsEmpty() ? FPlatformProcess::GetDllHandle(*LibraryPath) : nullptr;
+	if (!FPaths::FileExists(LibraryPath))
+    {
+        UE_LOG(LogTechnocrane, Error, TEXT("Failed to find the binary folder for the dll. Plug-in will not be functional."));
+        return;
+    }
 
-	if (nullptr == TechnocraneLibHandle)
+	TechnocraneLibHandle = FPlatformProcess::GetDllHandle(*LibraryPath);
+
+	if (TechnocraneLibHandle == nullptr)
 	{
 		printf("error loading a library\n");		
-		//FMessageDialog::Open(EAppMsgType::Ok, TCHAR_TO_);
+		UE_LOG(LogTechnocrane, Error, TEXT("Failed to load required library %s. Plug-in will not be functional."), *TechnocraneDll);
+        return;
 	}
 }
 
@@ -69,5 +76,5 @@ void FTechnocranePlugin::ShutdownModule()
 	}
 }
 
-
+DEFINE_LOG_CATEGORY(LogTechnocrane);
 

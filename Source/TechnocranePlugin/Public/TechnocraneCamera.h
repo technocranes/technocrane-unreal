@@ -10,9 +10,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include <Runtime/CinematicCamera/Public/CineCameraActor.h>
-#include <ThirdParty/TechnocraneSDK/include/technocrane_hardware.h>
+
+#include <technocrane_hardware.h>
 
 #include "TechnocraneCamera.generated.h"
+
 
 UCLASS(Blueprintable, ClassGroup = Technocrane, Category = "Technocrane", meta = (BlueprintSpawnableComponent))
 class TECHNOCRANEPLUGIN_API ATechnocraneCamera : public ACineCameraActor
@@ -24,13 +26,9 @@ public:
 	ATechnocraneCamera(const FObjectInitializer& ObjectInitializer);
 	virtual ~ATechnocraneCamera();
 
-	const bool IsReady() const {
-		return mHardware->IsReady();
-	}
+	const bool IsReady() const;
 
-	const int GetLastError() const {
-		return mHardware->GetLastError();
-	}
+	const int GetLastError() const;
 
 protected:
 	// Called when the game starts or when spawned
@@ -111,5 +109,7 @@ protected:
 
 	bool SwitchLive();
 
+#if defined(TECHNOCRANESDK)
 	NTechnocrane::CTechnocrane_Hardware	*	mHardware;
+#endif
 };

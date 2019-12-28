@@ -9,7 +9,7 @@
 #include "ITechnocranePlugin.h"
 #include <Runtime/CinematicCamera/Public/CineCameraComponent.h>
 
-#include <ThirdParty/TechnocraneSDK/include/technocrane_hardware.h>
+//#include <ThirdParty/TechnocraneSDK/include/technocrane_hardware.h>
 
 // Sets default values
 ATechnocraneCamera::ATechnocraneCamera(const FObjectInitializer& ObjectInitializer)
@@ -18,12 +18,14 @@ ATechnocraneCamera::ATechnocraneCamera(const FObjectInitializer& ObjectInitializ
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
+	//FPlatformProcess::GetDllHandle("TechnocraneLib.dll");
 
 	if (ITechnocranePlugin::IsAvailable())
 	{
+#if defined(TECHNOCRANESDK)
 		mHardware = new NTechnocrane::CTechnocrane_Hardware();
 		mHardware->Init();
-
+#endif
 	}
 	
 	//
@@ -51,11 +53,13 @@ ATechnocraneCamera::ATechnocraneCamera(const FObjectInitializer& ObjectInitializ
 }
 ATechnocraneCamera::~ATechnocraneCamera()
 {
+#if defined(TECHNOCRANESDK)
 	if (nullptr != mHardware)
 	{
 		delete mHardware;
 		mHardware = nullptr;
 	}
+#endif
 }
 
 // Called when the game starts or when spawned
@@ -65,9 +69,26 @@ void ATechnocraneCamera::BeginPlay()
 	
 }
 
+const bool ATechnocraneCamera::IsReady() const {
+#if defined(TECHNOCRANESDK)
+	return mHardware->IsReady();
+#else
+	return false;
+#endif
+}
+
+const int ATechnocraneCamera::GetLastError() const {
+#if defined(TECHNOCRANESDK)
+	return mHardware->GetLastError();
+#else
+	return 0;
+#endif
+}
+
 // Called every frame
 void ATechnocraneCamera::Tick(float DeltaTime)
 {
+#if defined(TECHNOCRANESDK)
 	if (Live && mHardware)
 	{
 		const bool packed_data = GetDefault<UTechnocraneRuntimeSettings>()->bPacketContainsRawAndCalibratedData;
@@ -90,9 +111,6 @@ void ATechnocraneCamera::Tick(float DeltaTime)
 			HasTimeCode = packet.HasTimeCode();
 			PacketNumber = packet.PacketNumber;
 
-			//SetActorLocation(v);
-			//SetActorRotation(rot);
-			
 			if (UCineCameraComponent* comp = GetCineCameraComponent())
 			{
 				comp->SetRelativeLocationAndRotation(v, rot);
@@ -125,7 +143,7 @@ void ATechnocraneCamera::Tick(float DeltaTime)
 		}
 		
 	}
-
+#endif
 	Super::Tick(DeltaTime);
 }
 
@@ -163,6 +181,7 @@ void ATechnocraneCamera::PostEditUndo()
 
 bool ATechnocraneCamera::SwitchLive()
 {
+#if defined(TECHNOCRANESDK)
 	if (!mHardware)
 		return false;
 
@@ -204,6 +223,6 @@ bool ATechnocraneCamera::SwitchLive()
 			mHardware->Close();
 		}
 	}
-
+#endif
 	return true;
 }
