@@ -1,36 +1,38 @@
 #pragma once
 
 ///////////////////////////////////////////////////////////////////
-// Copyright (c) 2019 Technocrane s.r.o. 
+// Copyright (c) 2020 Technocrane s.r.o. 
 //
 // Technocrane SDK Types declaration
-// Sergei <Neill3d> Solokhin 2019
+// Sergei <Neill3d> Solokhin 2018-2020
 ///////////////////////////////////////////////////////////////////
 
 #include <vector>
 #include <string>
 
-#if defined(TECHNOCRANESDK)
+#ifdef TECHNOCRANESDK_EXPORTS
+#define TECHNOCRANESDK_API	__declspec(dllexport)
+#define TECHNOCRANESDK_CAPI	extern "C" __declspec(dllexport)
+#else
+#define TECHNOCRANESDK_API  __declspec(dllimport)
+#define TECHNOCRANESDK_CAPI  __declspec(dllimport)
+#endif
 
 namespace NTechnocrane
 {
 
-#ifdef TECHNOCRANESDK_EXPORTS
-#define TECHNOCRANESDK_API	__declspec(dllexport)
-#else
-#define TECHNOCRANESDK_API  __declspec(dllimport)
-#endif
-
 	typedef std::pair<std::string, unsigned int>	port_pair;
 
 #define		TECHNOCRANE_HELP			"Please visit Technocrane homepage - http://www.supertechno.com/"
-#define		TECHNOCRANE_ABOUT			"TECHNOCRANE s.r.o.\n Developed by Sergei <Neill3d> Solokhin 2019"
+#define		TECHNOCRANE_ABOUT			"TECHNOCRANE s.r.o.\n Developed by Sergei <Neill3d> Solokhin 2018-2020"
 
 #define		TECHNOCRANE_NO_ERROR			0
 #define		TECHNOCRANE_NO_PORTS			1
 #define		TECHNOCRANE_NO_PORTS_MSG		"Is Data Cabel Connected? Do you want to try again ?"
 #define		TECHNOCRANE_SERIAL_FAILED		2
 #define		TECHNOCRANE_SERIAL_FAILED_MSG	"Failed to Activate Serial Port"
+#define		TECHNOCRANE_NETWORK_FAILED		3
+#define		TECHNOCRANE_NETWORK_FAILED_MSG	"Failed to Start A Network Communication"
 
 #define		default_port	1
 #define		default_fps		25.0f	// PAL
@@ -55,9 +57,17 @@ namespace NTechnocrane
 	// SOptions
 	struct SOptions
 	{
-		int			port;
-		int			baud_rate;
-		float		camera_fps;
+		float		m_CameraFPS;
+		bool		m_UseNetworkConnection;
+
+		// network options
+		bool			m_BindAnyAddress;
+		unsigned long	m_NetworkAddress;
+		int				m_NetworkPort;
+
+		// serial options
+		int			m_SerialPort;
+		int			m_BaudRate;
 	};
 
 	void TECHNOCRANESDK_API SetDefaultOptions(SOptions& options);
@@ -175,4 +185,3 @@ namespace NTechnocrane
 
 };
 
-#endif

@@ -38,9 +38,21 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Connection)
+		bool UseNetworkConnection;
+
 	/** Controls the amount of rails for the crane rig. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Connection, meta = (ClampMin = 0, ClampMax = 10))
-		int Port;
+		int SerialPort;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Connection)
+		bool NetworkBindAnyAddress;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Connection)
+		FString NetworkAddress;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Connection)
+		int NetworkPort;
 
 	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = Connection)
 		bool Live;
@@ -110,6 +122,8 @@ protected:
 	bool SwitchLive();
 
 #if defined(TECHNOCRANESDK)
-	NTechnocrane::CTechnocrane_Hardware	*	mHardware;
+	NTechnocrane::CTechnocrane_Hardware*	mHardware;
+	void PrepareOptions(NTechnocrane::SOptions& options);
+	bool CompareOptions(const NTechnocrane::SOptions& a, const NTechnocrane::SOptions& b);
 #endif
 };

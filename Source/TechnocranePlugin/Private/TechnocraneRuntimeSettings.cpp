@@ -9,7 +9,11 @@
 UTechnocraneRuntimeSettings::UTechnocraneRuntimeSettings()
 {
 	bLiveByDefault = false;
-	PortIdByDefault = 1;
+	bNetworkConnection = false;
+	SerialPortIdByDefault = 1;
+	bNetworkBindAnyAddress = true;
+	NetworkServerAddressByDefault = "127.0.0.1"; // localhost
+	NetworkPortIdByDefault = 15245;
 	SpaceScaleByDefault = 100.0f;
 	bPacketContainsRawAndCalibratedData = false;
 }

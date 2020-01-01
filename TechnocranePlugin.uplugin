@@ -1,32 +1,32 @@
 {
-	"FileVersion": 3,
-	"Version": 112,
-	"VersionName": "1.1.2",
-	"FriendlyName": "Technocrane Plugin",
-	"Description": "Technocrane Tracking Plugin.",
-	"Category": "Input Devices",
-	"CreatedBy": "Technocrane r.s.o.",
-	"CreatedByURL": "http://supertechno.com",
-	"DocsURL": "https://github.com/technocranes/technocrane-unreal",
-	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/7ac283e8aa09461380eaa412284d8087",
-	"SupportURL": "https://github.com/technocranes/technocrane-unreal",
-	"EngineVersion":  "4.22.0",
-	"EnabledByDefault": false,
-	"CanContainContent": true,
-	"IsBetaVersion": false,
-	"Installed": true,
+  "FileVersion": 4,
+  "Version": 120,
+  "VersionName": "1.2.0",
+  "FriendlyName": "Technocrane Plugin",
+  "Description": "Technocrane Tracking Plugin.",
+  "Category": "Input Devices",
+  "CreatedBy": "Technocrane r.s.o.",
+  "CreatedByURL": "http://supertechno.com",
+  "DocsURL": "https://github.com/technocranes/technocrane-unreal",
+  "MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/7ac283e8aa09461380eaa412284d8087",
+  "SupportURL": "https://github.com/technocranes/technocrane-unreal",
+  "EngineVersion": [ "4.22.0", "4.23.0", "4.24.0" ],
+  "EnabledByDefault": false,
+  "CanContainContent": true,
+  "IsBetaVersion": false,
+  "Installed": true,
   "Modules": [
     {
       "Name": "TechnocranePlugin",
       "Type": "Runtime",
       "LoadingPhase": "Default",
-      "WhitelistPlatforms": "Win64"
+      "WhitelistPlatforms": [ "Win64" ]
     },
     {
       "Name": "TechnocraneEditor",
       "Type": "Editor",
       "LoadingPhase": "PostEngineInit",
-      "WhitelistPlatforms": "Win64"
+      "WhitelistPlatforms": [ "Win64" ]
     }
   ]
 }

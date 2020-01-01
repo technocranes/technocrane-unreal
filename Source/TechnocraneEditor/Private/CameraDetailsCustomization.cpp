@@ -75,8 +75,8 @@ void FCameraDetailsCustomization::BuildTrackingDataSection(IDetailCategoryBuilde
 		[
 			SNew(STextBlock)
 			.Font(DetailLayout.GetDetailFontItalic())
-		.Justification(ETextJustify::Center)
-		.Text(TrackingInfoInLiveMode)
+			.Justification(ETextJustify::Center)
+			.Text(TrackingInfoInLiveMode)
 		];
 
 	TAttribute<EVisibility> ShownInfo = TAttribute<EVisibility>::Create(TAttribute<EVisibility>::FGetter::CreateSP(this, &FCameraDetailsCustomization::GetCustomLiveVisibility, CameraLiveDomainProperty));
@@ -114,6 +114,8 @@ void FCameraDetailsCustomization::BuildTrackingDataSection(IDetailCategoryBuilde
 
 void FCameraDetailsCustomization::BuildConnectionSection(IDetailCategoryBuilder& Category, IDetailLayoutBuilder& DetailLayout)
 {
+	TSharedPtr<IPropertyHandle> NetworkConnectionDomainProperty = DetailLayout.GetProperty(GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, UseNetworkConnection));
+	//TSharedPtr<IPropertyHandle> NetworkAddressDomainProperty = DetailLayout.GetProperty(GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, NetworkBindAnyAddress));
 	
 	TArray<TWeakObjectPtr<UObject>> ObjectsBeingCustomized;
 	DetailLayout.GetObjectsBeingCustomized(/*out*/ ObjectsBeingCustomized);
@@ -130,15 +132,33 @@ void FCameraDetailsCustomization::BuildConnectionSection(IDetailCategoryBuilder&
 				[
 					SNew(STextBlock)
 					.Font(DetailLayout.GetDetailFontItalic())
-				.Justification(ETextJustify::Center)
-				.Text(this, &FCameraDetailsCustomization::GetConnectionStatusText, MakeWeakObjectPtr(camera))
+					.Justification(ETextJustify::Center)
+					.Text(this, &FCameraDetailsCustomization::GetConnectionStatusText, MakeWeakObjectPtr(camera))
 				];
 
 		}
 	}
 
-	Category.AddProperty(DetailLayout.GetProperty(GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, Port)))
-		.DisplayName(LOCTEXT("Port", "COM Port Id"));
+	TAttribute<EVisibility> ShownNetwork = TAttribute<EVisibility>::Create(TAttribute<EVisibility>::FGetter::CreateSP(this, &FCameraDetailsCustomization::GetCustomLiveVisibility, NetworkConnectionDomainProperty));
+	//TAttribute<EVisibility> ShownNetworkAddress = TAttribute<EVisibility>::Create(TAttribute<EVisibility>::FGetter::CreateSP(this, &FCameraDetailsCustomization::GetCustomLiveVisibility, NetworkAddressDomainProperty));
+
+	Category.AddProperty(DetailLayout.GetProperty(GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, UseNetworkConnection)))
+		.DisplayName(LOCTEXT("Use Network Connection", "Use Network Connection"));
+
+	Category.AddProperty(DetailLayout.GetProperty(GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, SerialPort)))
+		.DisplayName(LOCTEXT("Serial Port", "COM Port Id"));
+
+	Category.AddProperty(DetailLayout.GetProperty(GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, NetworkBindAnyAddress)))
+		.DisplayName(LOCTEXT("NetworkBindAnyAddress", "UDP Bind Any Address"))
+		.Visibility(ShownNetwork);
+
+	Category.AddProperty(DetailLayout.GetProperty(GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, NetworkAddress)))
+		.DisplayName(LOCTEXT("NetworkAddress", "UDP Server Address"))
+		.Visibility(ShownNetwork);
+
+	Category.AddProperty(DetailLayout.GetProperty(GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, NetworkPort)))
+		.DisplayName(LOCTEXT("Network Port", "UDP Port Id"))
+		.Visibility(ShownNetwork);
 }
 
 FText FCameraDetailsCustomization::GetConnectionStatusText(TWeakObjectPtr<ATechnocraneCamera> WeakSprite) const

@@ -36,9 +36,26 @@ ATechnocraneCamera::ATechnocraneCamera(const FObjectInitializer& ObjectInitializ
 	}
 	
 	//
-	Port = GetDefault<UTechnocraneRuntimeSettings>()->PortIdByDefault;
-	Live = GetDefault<UTechnocraneRuntimeSettings>()->bLiveByDefault;
+	if (const UTechnocraneRuntimeSettings* settings = GetDefault<UTechnocraneRuntimeSettings>())
+	{
+		UseNetworkConnection = settings->bNetworkConnection;
+		SerialPort = settings->SerialPortIdByDefault;
+		NetworkBindAnyAddress = settings->bNetworkBindAnyAddress;
+		NetworkAddress = settings->NetworkServerAddressByDefault;
+		NetworkPort = settings->NetworkPortIdByDefault;
 
+		Live = settings->bLiveByDefault;
+	}
+	else
+	{
+		UseNetworkConnection = false;
+		SerialPort = 1;
+		NetworkBindAnyAddress = true;
+		NetworkAddress = "127.0.0.1";
+		NetworkPort = 15245;
+		Live = false;
+	}
+	
 	SpaceScale = GetDefault<UTechnocraneRuntimeSettings>()->SpaceScaleByDefault;
 	TrackPosition = 0.0f;
 
@@ -91,6 +108,15 @@ void ATechnocraneCamera::Tick(float DeltaTime)
 #if defined(TECHNOCRANESDK)
 	if (Live && mHardware)
 	{
+		if (!mHardware->IsReady())
+		{
+			Live = false;
+			mHardware->StopDataStream();
+			mHardware->Close();
+			Super::Tick(DeltaTime);
+			return;
+		}
+
 		const bool packed_data = GetDefault<UTechnocraneRuntimeSettings>()->bPacketContainsRawAndCalibratedData;
 
 		size_t index = 0;
@@ -153,11 +179,24 @@ bool ATechnocraneCamera::CanEditChange(const UProperty* InProperty) const
 	const bool ParentVal = Super::CanEditChange(InProperty);
 
 	//show the projectile type dropdown only if the delivery method is projecile
-	if (InProperty->GetFName() == GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, Port))
+	if (InProperty->GetFName() == GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, SerialPort))
+	{
+		return ParentVal && (Live == false) && (UseNetworkConnection == false);
+	}
+	else 
+	if (InProperty->GetFName() == GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, UseNetworkConnection)
+		|| InProperty->GetFName() == GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, NetworkBindAnyAddress)
+		|| InProperty->GetFName() == GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, NetworkPort))
+	{
 		return ParentVal && (Live == false);
+	}
 	/*Add any "else if" chains here.*/
-	else
-		return ParentVal;
+	else if (InProperty->GetFName() == GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, NetworkAddress))
+	{
+		return ParentVal && (Live == false) && (NetworkBindAnyAddress == false);
+	}
+	
+	return ParentVal;
 }
 
 void ATechnocraneCamera::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
@@ -187,12 +226,25 @@ bool ATechnocraneCamera::SwitchLive()
 
 	if (Live)
 	{
-		const int32 port_index = Port;
+		const int32 port_index = SerialPort;
 
 		NTechnocrane::SOptions	options;
 		options = mHardware->GetOptions();
 
-		if (mHardware->IsReady() && (options.port != port_index))
+		bool need_restart = false;
+
+		if (mHardware->IsReady())
+		{
+			NTechnocrane::SOptions camera_options(options);
+			PrepareOptions(camera_options);
+
+			if (!CompareOptions(options, camera_options))
+			{
+				need_restart = true;
+			}
+		}
+
+		if (need_restart)
 		{
 			mHardware->StopDataStream();
 			mHardware->Close();
@@ -200,8 +252,7 @@ bool ATechnocraneCamera::SwitchLive()
 
 		if (false == mHardware->IsReady())
 		{
-			// COM Nnn	
-			options.port = port_index;
+			PrepareOptions(options);
 			mHardware->ClearLastError();
 
 			if (true == mHardware->Open(options))
@@ -226,3 +277,38 @@ bool ATechnocraneCamera::SwitchLive()
 #endif
 	return true;
 }
+
+#if defined(TECHNOCRANESDK)
+void ATechnocraneCamera::PrepareOptions(NTechnocrane::SOptions& options)
+{
+	options.m_UseNetworkConnection = UseNetworkConnection;
+
+	options.m_BindAnyAddress = NetworkBindAnyAddress;
+	//options.m_NetworkAddress = htonl(INADDR_ANY);
+	options.m_NetworkPort = NetworkPort; // server port
+
+	options.m_SerialPort = SerialPort;
+	//options.m_BaudRate = 115200;
+}
+
+bool ATechnocraneCamera::CompareOptions(const NTechnocrane::SOptions& a, const NTechnocrane::SOptions& b)
+{
+	if (a.m_UseNetworkConnection != b.m_UseNetworkConnection)
+	{
+		return false;
+	}
+
+	if (a.m_NetworkPort != b.m_NetworkPort)
+	{
+		return false;
+	}
+
+	if (a.m_SerialPort != b.m_SerialPort)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+#endif

@@ -25,7 +25,21 @@ private:
 
 IMPLEMENT_MODULE(FTechnocranePlugin, TechnocranePlugin )
 
-
+void TechnocraneLogCallback(const char* text, const int level)
+{
+	FString str_text(text);
+	switch (level)
+	{
+	case 0x02:
+		UE_LOG(LogTechnocrane, Warning, TEXT("%s"), *str_text);
+		break;
+	case 0x03:
+		UE_LOG(LogTechnocrane, Error, TEXT("%s"), *str_text);
+		break;
+	default:
+		UE_LOG(LogTechnocrane, Log, TEXT("%s"), *str_text);
+	}
+}
 
 void FTechnocranePlugin::StartupModule()
 {
@@ -60,6 +74,10 @@ void FTechnocranePlugin::StartupModule()
 		UE_LOG(LogTechnocrane, Error, TEXT("Failed to load required library %s. Plug-in will not be functional."), *TechnocraneDll);
         return;
 	}
+
+#if defined(TECHNOCRANESDK)
+	NTechnocrane::SetLogCallback(TechnocraneLogCallback);
+#endif
 }
 
 

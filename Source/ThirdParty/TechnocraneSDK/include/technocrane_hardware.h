@@ -1,15 +1,13 @@
 #pragma once
 
 //////////////////////////////////////////////////////////////////
-// Copyright (c) 2019 Technocrane s.r.o. 
+// Copyright (c) 2018-2020 Technocrane s.r.o. 
 //
 // Technocrane SDK hardware device, communication class
-// Sergei <Neill3d> Solokhin 2019
+// Sergei <Neill3d> Solokhin 2018-2020
 //////////////////////////////////////////////////////////////////
 
 #include "technocrane_types.h"
-
-#if defined(TECHNOCRANESDK)
 
 namespace NTechnocrane
 {
@@ -17,6 +15,10 @@ namespace NTechnocrane
 	bool TECHNOCRANESDK_API ComputeFocus(float &value, const float src, const float rangeMin, const float rangeMax);
 	bool TECHNOCRANESDK_API ComputeZoom(float &value, const float src, const float rangeMin, const float rangeMax);
 	bool TECHNOCRANESDK_API ComputeIris(float &value, const float src, const float rangeMin, const float rangeMax);
+
+	// Log output
+	typedef void(*LOG_CALLBACK)(const char* message, const int level);
+	void TECHNOCRANESDK_API SetLogCallback(LOG_CALLBACK	log_callback);
 
 	/////////////////////////////////////////////////////////////////////////////////////////////
 	//! Technocrane hardware.
@@ -70,4 +72,11 @@ namespace NTechnocrane
 
 };
 
-#endif
+//
+//
+
+TECHNOCRANESDK_CAPI int32_t StartStream(const bool use_network_connection, const int32_t port_id);
+TECHNOCRANESDK_CAPI int32_t StopStream();
+
+TECHNOCRANESDK_CAPI void*  MapPacket();
+TECHNOCRANESDK_CAPI void  UnMapPacket();

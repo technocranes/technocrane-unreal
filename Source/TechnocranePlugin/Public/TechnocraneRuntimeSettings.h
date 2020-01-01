@@ -27,9 +27,25 @@ public:
 	UPROPERTY(EditAnywhere, config, Category=Settings)
 	bool bLiveByDefault;
 
-	// Specify a default port index for a Technocrane Camera
+	// switch between serial or network connections
 	UPROPERTY(EditAnywhere, config, Category = Settings)
-	int PortIdByDefault;
+	bool bNetworkConnection;
+
+	// Specify a default serial port index for a Technocrane Camera
+	UPROPERTY(EditAnywhere, config, Category = Settings)
+	int SerialPortIdByDefault;
+
+	// try to catch packets from a specified udp port broadcasted into a local network
+	UPROPERTY(EditAnywhere, config, Category = NetworkSettings)
+	bool bNetworkBindAnyAddress;
+
+	// Specify a default network server address
+	UPROPERTY(EditAnywhere, config, Category = NetworkSettings)
+	FString NetworkServerAddressByDefault;
+	
+	// Specify a default network port index for a Technocrane Camera
+	UPROPERTY(EditAnywhere, config, Category = NetworkSettings)
+	int NetworkPortIdByDefault;
 
 	// Specify a default packet raw data space scale
 	UPROPERTY(EditAnywhere, config, Category=Settings)
