@@ -1,8 +1,0 @@
-{
-	"BuildId": "5660361",
-	"Modules": 
-	{
-		"TechnocraneEditor": "UE4Editor-TechnocraneEditor-Win64-DebugGame.dll",
-		"TechnocranePlugin": "UE4Editor-TechnocranePlugin-Win64-DebugGame.dll"
-	}
-}
