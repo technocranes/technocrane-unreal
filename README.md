@@ -9,6 +9,10 @@
   When you are opening project for a first time, you have to go to Settings->Plugins, find there Technocrane Plugin and Enable it.
 [![TechnocranePlugin](https://github.com/technocranes/technocrane-unreal/blob/master/Images/TechnocranePlugin.JPG)]()
 
+# Video Tutorial
+
+[![plugin_introduction](https://youtu.be/Nxp08jvDGdk)](https://youtu.be/Nxp08jvDGdk)
+
 # Contact
 
 Please post issues and feature requests to this [github repository issues section](https://github.com/technocranes/technocrane-unreal/issues)
