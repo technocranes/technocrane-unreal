@@ -10,6 +10,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include <Runtime/CinematicCamera/Public/CineCameraActor.h>
+#include "Misc/Timecode.h"
 
 #include <technocrane_hardware.h>
 
@@ -70,8 +71,8 @@ public:
 		bool HasTimeCode;
 
 	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Tracking Raw Data")
-		FVector4 TimeCode;
-
+		FTimecode	TimeCode;
+	
 	UPROPERTY(VisibleAnywhere, SkipSerialization, BlueprintReadOnly, Category = "Tracking Raw Data")
 		int32 PacketNumber;
 
@@ -103,6 +104,9 @@ public:
 		float SpaceScale;
 
 	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = "Tracking Options")
+		FFrameRate FrameRate;
+
+	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = "Tracking Options")
 		FVector2D ZoomRange;
 
 	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = "Tracking Options")
@@ -111,6 +115,13 @@ public:
 	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = "Tracking Options")
 		FVector2D FocusRange;
 
+	/**
+	 * Gets the playback Timecode of the level sequence
+	 * @return the current playback Timecode
+	 */
+	UFUNCTION(BlueprintPure, Category = "Tracking Raw Data")
+		FTimecode GetPlaybackTimecode();
+
 #if WITH_EDITOR
 	virtual bool CanEditChange(const UProperty* InProperty) const override;
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
@@ -118,6 +129,8 @@ public:
 #endif
 
 protected:
+
+	bool m_IsInitialized;
 
 	bool SwitchLive();
 

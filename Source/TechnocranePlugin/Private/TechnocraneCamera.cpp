@@ -14,6 +14,7 @@
 // Sets default values
 ATechnocraneCamera::ATechnocraneCamera(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
+	, FrameRate(25, 1)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -57,6 +58,7 @@ ATechnocraneCamera::ATechnocraneCamera(const FObjectInitializer& ObjectInitializ
 	}
 	
 	SpaceScale = GetDefault<UTechnocraneRuntimeSettings>()->SpaceScaleByDefault;
+	//FrameRate = 25.0f;
 	TrackPosition = 0.0f;
 
 	//SetActorScale3D(FVector(0.5f, 0.5f, 0.5f));
@@ -66,7 +68,7 @@ ATechnocraneCamera::ATechnocraneCamera(const FObjectInitializer& ObjectInitializ
 	IrisRange = FVector2D(0.0f, 100.0f);
 	FocusRange = FVector2D(0.0f, 100.0f);
 
-	//SwitchLive();
+	m_IsInitialized = false;
 }
 ATechnocraneCamera::~ATechnocraneCamera()
 {
@@ -102,12 +104,23 @@ const int ATechnocraneCamera::GetLastError() const {
 #endif
 }
 
+FTimecode ATechnocraneCamera::GetPlaybackTimecode()
+{
+	return TimeCode;
+}
+
 // Called every frame
 void ATechnocraneCamera::Tick(float DeltaTime)
 {
 #if defined(TECHNOCRANESDK)
 	if (Live && mHardware)
 	{
+		if (m_IsInitialized == false)
+		{
+			SwitchLive();
+			m_IsInitialized = true;
+		}
+
 		if (!mHardware->IsReady())
 		{
 			Live = false;
@@ -136,6 +149,19 @@ void ATechnocraneCamera::Tick(float DeltaTime)
 
 			HasTimeCode = packet.HasTimeCode();
 			PacketNumber = packet.PacketNumber;
+
+			if (packet.HasTimeCode())
+			{
+				TimeCode.Hours = packet.hours;
+				TimeCode.Minutes = packet.minutes;
+				TimeCode.Seconds = packet.seconds;
+				TimeCode.Frames = packet.frames;
+			}
+			else
+			{
+				TimeCode.FromFrameNumber(FFrameNumber(static_cast<int32>(packet.frames)), 
+					FrameRate, false);
+			}
 
 			if (UCineCameraComponent* comp = GetCineCameraComponent())
 			{
@@ -226,8 +252,6 @@ bool ATechnocraneCamera::SwitchLive()
 
 	if (Live)
 	{
-		const int32 port_index = SerialPort;
-
 		NTechnocrane::SOptions	options;
 		options = mHardware->GetOptions();
 
