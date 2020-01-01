@@ -11,7 +11,7 @@
 
 # Video Tutorial
 
-[![](https://youtu.be/Nxp08jvDGdk)](https://youtu.be/Nxp08jvDGdk "Click and play youtube video")
+[![plugin_introduction](https://youtu.be/Nxp08jvDGdk)](https://youtu.be/Nxp08jvDGdk)
 
 # Contact
 
