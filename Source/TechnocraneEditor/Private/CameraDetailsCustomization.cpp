@@ -115,7 +115,6 @@ void FCameraDetailsCustomization::BuildTrackingDataSection(IDetailCategoryBuilde
 void FCameraDetailsCustomization::BuildConnectionSection(IDetailCategoryBuilder& Category, IDetailLayoutBuilder& DetailLayout)
 {
 	TSharedPtr<IPropertyHandle> NetworkConnectionDomainProperty = DetailLayout.GetProperty(GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, UseNetworkConnection));
-	//TSharedPtr<IPropertyHandle> NetworkAddressDomainProperty = DetailLayout.GetProperty(GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, NetworkBindAnyAddress));
 	
 	TArray<TWeakObjectPtr<UObject>> ObjectsBeingCustomized;
 	DetailLayout.GetObjectsBeingCustomized(/*out*/ ObjectsBeingCustomized);
@@ -140,8 +139,7 @@ void FCameraDetailsCustomization::BuildConnectionSection(IDetailCategoryBuilder&
 	}
 
 	TAttribute<EVisibility> ShownNetwork = TAttribute<EVisibility>::Create(TAttribute<EVisibility>::FGetter::CreateSP(this, &FCameraDetailsCustomization::GetCustomLiveVisibility, NetworkConnectionDomainProperty));
-	//TAttribute<EVisibility> ShownNetworkAddress = TAttribute<EVisibility>::Create(TAttribute<EVisibility>::FGetter::CreateSP(this, &FCameraDetailsCustomization::GetCustomLiveVisibility, NetworkAddressDomainProperty));
-
+	
 	Category.AddProperty(DetailLayout.GetProperty(GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, UseNetworkConnection)))
 		.DisplayName(LOCTEXT("Use Network Connection", "Use Network Connection"));
 
@@ -150,6 +148,10 @@ void FCameraDetailsCustomization::BuildConnectionSection(IDetailCategoryBuilder&
 
 	Category.AddProperty(DetailLayout.GetProperty(GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, NetworkBindAnyAddress)))
 		.DisplayName(LOCTEXT("NetworkBindAnyAddress", "UDP Bind Any Address"))
+		.Visibility(ShownNetwork);
+
+	Category.AddProperty(DetailLayout.GetProperty(GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, NetworkBroadcast)))
+		.DisplayName(LOCTEXT("NetworkBroadcast", "UDP Broadcast"))
 		.Visibility(ShownNetwork);
 
 	Category.AddProperty(DetailLayout.GetProperty(GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, NetworkAddress)))

@@ -39,6 +39,9 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = NetworkSettings)
 	bool bNetworkBindAnyAddress;
 
+	UPROPERTY(EditAnywhere, config, Category = NetworkSettings)
+	bool bNetworkBroadcast;
+
 	// Specify a default network server address
 	UPROPERTY(EditAnywhere, config, Category = NetworkSettings)
 	FString NetworkServerAddressByDefault;

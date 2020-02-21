@@ -50,6 +50,9 @@ public:
 		bool NetworkBindAnyAddress;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Connection)
+		bool NetworkBroadcast;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Connection)
 		FString NetworkAddress;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Connection)

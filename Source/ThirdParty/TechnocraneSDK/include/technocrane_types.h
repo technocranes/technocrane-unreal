@@ -62,6 +62,7 @@ namespace NTechnocrane
 
 		// network options
 		bool			m_BindAnyAddress;
+		bool			m_Broadcast;
 		unsigned long	m_NetworkAddress;
 		int				m_NetworkPort;
 
@@ -101,6 +102,36 @@ namespace NTechnocrane
 
 	float TECHNOCRANESDK_API ETimeRatePresetToFloat(const ETimeRatePreset preset);
 
+	enum ERotationOrder
+	{
+		eXYZ,		//!< XYZ  
+		eXZY,		//!< XZY 
+		eYXZ,		//!< YXZ 
+		eYZX,		//!< YZX 	
+		eZXY,		//!< ZXY 	
+		eZYX,		//!< ZYX
+	};
+
+	/*
+	 * This class holds informations about reception history.
+	 */
+	class dataReceptionStatus
+	{
+	public:
+		dataReceptionStatus();
+
+		void IncTotalCharsRead();
+		void IncCompletePackets();
+		void IncTotalCheckSumErrors();
+		void IncTotalMissedSyncs();
+
+		int totalCharsRead;
+		int nextSync;
+		int totalCheckSumErrors;
+		int totalMissedSyncs;
+		int completePackets;
+		double startTime, endTime, totalTime;
+	};
 
 	//////////////////////////////////////////////////////////////////////////////////////////
 	//! Camera packet class.

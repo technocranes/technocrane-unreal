@@ -25,7 +25,7 @@ ATechnocraneCamera::ATechnocraneCamera(const FObjectInitializer& ObjectInitializ
 	{
 #if defined(TECHNOCRANESDK)
 		mHardware = new NTechnocrane::CTechnocrane_Hardware();
-		mHardware->Init();
+		mHardware->Init(false, false, false);
 #endif
 	}
 	
@@ -42,6 +42,7 @@ ATechnocraneCamera::ATechnocraneCamera(const FObjectInitializer& ObjectInitializ
 		UseNetworkConnection = settings->bNetworkConnection;
 		SerialPort = settings->SerialPortIdByDefault;
 		NetworkBindAnyAddress = settings->bNetworkBindAnyAddress;
+		NetworkBroadcast = settings->bNetworkBroadcast;
 		NetworkAddress = settings->NetworkServerAddressByDefault;
 		NetworkPort = settings->NetworkPortIdByDefault;
 
@@ -52,8 +53,9 @@ ATechnocraneCamera::ATechnocraneCamera(const FObjectInitializer& ObjectInitializ
 		UseNetworkConnection = false;
 		SerialPort = 1;
 		NetworkBindAnyAddress = true;
+		NetworkBroadcast = false;
 		NetworkAddress = "127.0.0.1";
-		NetworkPort = 15245;
+		NetworkPort = 15246;
 		Live = false;
 	}
 	
@@ -175,19 +177,19 @@ void ATechnocraneCamera::Tick(float DeltaTime)
 				// compute final values
 
 				float zoom = 1.0;
-				IsZoomCalibrated = NTechnocrane::ComputeZoom(zoom, packet.Zoom, ZoomRange.X, ZoomRange.Y);
+				IsZoomCalibrated = NTechnocrane::ComputeZoomf(zoom, packet.Zoom, ZoomRange.X, ZoomRange.Y);
 				comp->CurrentFocalLength = zoom;
 				CalibratedZoom = zoom;
 
 				if (!packed_data)
 				{
 					float iris = 1.0;
-					IsIrisCalibrated = NTechnocrane::ComputeIris(iris, packet.Iris, IrisRange.X, IrisRange.Y);
+					IsIrisCalibrated = NTechnocrane::ComputeIrisf(iris, packet.Iris, IrisRange.X, IrisRange.Y);
 					comp->CurrentAperture = iris;
 				}
 				
 				float focus = 1.0;
-				IsFocusCalibrated = NTechnocrane::ComputeFocus(focus, packet.Focus, FocusRange.X, FocusRange.Y);
+				IsFocusCalibrated = NTechnocrane::ComputeFocusf(focus, packet.Focus, FocusRange.X, FocusRange.Y);
 				comp->FocusSettings.ManualFocusDistance = SpaceScale * focus;
 
 				CalibratedFocus = SpaceScale * focus;
@@ -212,6 +214,7 @@ bool ATechnocraneCamera::CanEditChange(const UProperty* InProperty) const
 	else 
 	if (InProperty->GetFName() == GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, UseNetworkConnection)
 		|| InProperty->GetFName() == GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, NetworkBindAnyAddress)
+		|| InProperty->GetFName() == GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, NetworkBroadcast)
 		|| InProperty->GetFName() == GET_MEMBER_NAME_CHECKED(ATechnocraneCamera, NetworkPort))
 	{
 		return ParentVal && (Live == false);
@@ -308,6 +311,7 @@ void ATechnocraneCamera::PrepareOptions(NTechnocrane::SOptions& options)
 	options.m_UseNetworkConnection = UseNetworkConnection;
 
 	options.m_BindAnyAddress = NetworkBindAnyAddress;
+	options.m_Broadcast = NetworkBroadcast;
 	//options.m_NetworkAddress = htonl(INADDR_ANY);
 	options.m_NetworkPort = NetworkPort; // server port
 
