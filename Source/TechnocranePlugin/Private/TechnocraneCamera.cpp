@@ -139,9 +139,13 @@ void ATechnocraneCamera::Tick(float DeltaTime)
 
 		if (mHardware->FetchDataPacket(packet, 1, index, packed_data) > 0)
 		{
-			FVector		v(SpaceScale * packet.Position[0],
-							SpaceScale * packet.Position[1],
-							SpaceScale * packet.Position[2]);
+			const float x = packet.Position[2];
+			const float y = packet.Position[0];
+			const float z = packet.Position[1];
+
+			FVector		v(SpaceScale * y,
+							SpaceScale * x,
+							SpaceScale * z);
 			FRotator	rot(packet.Tilt, 90.0f + packet.Pan, packet.Roll);
 
 			TrackPosition = SpaceScale * packet.TrackPos;
