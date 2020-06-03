@@ -1,9 +1,9 @@
-// Copyright (c) 2019 Technocrane s.r.o. 
+// Copyright (c) 2020 Technocrane s.r.o. 
 //
 // https://github.com/technocranes/technocrane-unreal
 //
 // TechnocraneRuntimeSettings.h
-// Sergei <Neill3d> Solokhin 2019
+// Sergei <Neill3d> Solokhin
 
 #pragma once
 
@@ -57,4 +57,8 @@ public:
 	// Specify a default packet raw data space scale
 	UPROPERTY(EditAnywhere, config, Category = Settings)
 	bool bPacketContainsRawAndCalibratedData;
+
+	// Default camera frame rate
+	UPROPERTY(EditAnywhere, config, Category = Settings)
+	FFrameRate	CameraFrameRate;
 };

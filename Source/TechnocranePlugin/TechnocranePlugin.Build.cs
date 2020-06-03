@@ -1,7 +1,9 @@
-// Copyright (c) 2019 Technocrane s.r.o. 
+// Copyright (c) 2020 Technocrane s.r.o. 
+//
+// https://github.com/technocranes/technocrane-unreal
 //
 // TechnocranePlugin.Build.cs
-// Sergei <Neill3d> Solokhin 2019
+// Sergei <Neill3d> Solokhin
 
 using UnrealBuildTool;
 using System;
@@ -41,23 +43,46 @@ namespace UnrealBuildTool.Rules
             PublicDependencyModuleNames.AddRange(
 				new string[]
 				{
-                    "Core", "Projects", "CoreUObject", "Engine", "InputCore", "CinematicCamera"
-					// ... add other public dependencies that you statically link with here ...
-				}
+                    "Core",
+                    "Projects",
+                    "CoreUObject",
+                    "Engine",
+                    "InputCore",
+                    "CinematicCamera",
+                    "LiveLink",
+                    "LiveLinkInterface",
+                    "Messaging",
+                    "Networking"
+                }
 				);
 
 			PrivateDependencyModuleNames.AddRange(
 				new string[]
-				{
-					// ... add private dependencies that you statically link with here ...
-				}
+                {
+                    "Messaging",
+                    "LiveLink",
+                    "LiveLinkInterface",
+                    "LiveLinkMessageBusFramework",
+                    "Networking",
+                    "TimeManagement",
+                    "SlateCore",
+                    "Slate",
+                    "Sockets"
+                }
 				);
 
-			DynamicallyLoadedModuleNames.AddRange(
+            PrivateIncludePathModuleNames.AddRange(
+                new string[] {
+                    "Messaging",
+                    "MessagingCommon",
+                });
+
+            DynamicallyLoadedModuleNames.AddRange(
 				new string[]
 				{
 					// ... add any modules that your module loads dynamically here ...
-				}
+                    //"Messaging",
+                }
 				);
 
             /****************************************/

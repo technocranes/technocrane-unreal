@@ -1,7 +1,9 @@
-// Copyright (c) 2019 Technocrane s.r.o. 
+// Copyright (c) 2020 Technocrane s.r.o. 
+//
+// https://github.com/technocranes/technocrane-unreal
 //
 // TechnocraneRig.cpp
-// Sergei <Neill3d> Solokhin 2019
+// Sergei <Neill3d> Solokhin
 
 #include "TechnocraneRig.h"
 #include "TechnocranePrivatePCH.h"
@@ -16,7 +18,6 @@
 #include <Runtime/CinematicCamera/Public/CineCameraComponent.h>
 
 #include "Interfaces/IPluginManager.h"
-//#include <Paths.h>
 
 #include "TechnocraneShared.h"
 #include <TechnocraneCamera.h>
@@ -125,8 +126,6 @@ public:
 			
 			if (DeltaAngle == DeltaAngle && abs(DeltaAngle) > 0.01f)
 			{
-				//UE_LOG(LogTemp, Warning, TEXT("angle - %f"), DeltaAngle)
-
 				FRotator rot = mComponent->GetBoneRotationByName(columns_name, EBoneSpaces::ComponentSpace);
 
 				rot.Yaw += (is_behind) ? -DeltaAngle : DeltaAngle;

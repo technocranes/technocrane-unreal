@@ -1,9 +1,9 @@
-// Copyright (c) 2019 Technocrane s.r.o. 
+// Copyright (c) 2020 Technocrane s.r.o. 
 //
 // https://github.com/technocranes/technocrane-unreal
 //
 // ITechnocranePlugin.h
-// Sergei <Neill3d> Solokhin 2019
+// Sergei <Neill3d> Solokhins
 
 #pragma once
 
@@ -41,5 +41,6 @@ public:
 	{
 		return FModuleManager::Get().IsModuleLoaded( "TechnocranePlugin" );
 	}
+
 };
 

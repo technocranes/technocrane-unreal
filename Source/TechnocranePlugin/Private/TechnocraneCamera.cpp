@@ -1,15 +1,15 @@
-// Copyright (c) 2019 Technocrane s.r.o. 
+// Copyright (c) 2020 Technocrane s.r.o. 
+//
+// https://github.com/technocranes/technocrane-unreal
 //
 // TechnocraneCamera.cpp
-// Sergei <Neill3d> Solokhin 2019
+// Sergei <Neill3d> Solokhin
 
 #include "TechnocraneCamera.h"
 #include "TechnocranePrivatePCH.h"
 #include "TechnocraneRuntimeSettings.h"
 #include "ITechnocranePlugin.h"
 #include <Runtime/CinematicCamera/Public/CineCameraComponent.h>
-
-//#include <ThirdParty/TechnocraneSDK/include/technocrane_hardware.h>
 
 // Sets default values
 ATechnocraneCamera::ATechnocraneCamera(const FObjectInitializer& ObjectInitializer)
@@ -67,8 +67,6 @@ ATechnocraneCamera::ATechnocraneCamera(const FObjectInitializer& ObjectInitializ
 	//FrameRate = 25.0f;
 	TrackPosition = 0.0f;
 
-	//SetActorScale3D(FVector(0.5f, 0.5f, 0.5f));
-	
 	//
 	ZoomRange = FVector2D(0.0f, 100.0f);
 	IrisRange = FVector2D(0.0f, 100.0f);

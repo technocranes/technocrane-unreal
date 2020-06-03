@@ -1,7 +1,9 @@
-// Copyright (c) 2019 Technocrane s.r.o. 
+// Copyright (c) 2020 Technocrane s.r.o. 
+//
+// https://github.com/technocranes/technocrane-unreal
 //
 // CameraDetailsCustomization.cpp
-// Sergei <Neill3d> Solokhin 2019
+// Sergei <Neill3d> Solokhin
 
 #include "CameraDetailsCustomization.h"
 #include "TechnocraneEditorPCH.h"

@@ -1,7 +1,7 @@
-// Copyright (c) 2019 Technocrane s.r.o. 
+// Copyright (c) 2020 Technocrane s.r.o. 
 //
 // TechnocraneEditorModule.cpp
-// Sergei <Neill3d> Solokhin 2019
+// Sergei <Neill3d> Solokhin
 
 #include "TechnocraneEditorModule.h"
 #include "TechnocraneEditorPCH.h"
@@ -24,6 +24,8 @@
 #include "CameraDetailsCustomization.h"
 
 #include "TechnocraneCamera.h"
+#include "TechnocraneEditorCommands.h"
+#include "TechnocraneEditorStyle.h"
 
 // Settings
 #include "TechnocraneRuntimeSettings.h"
@@ -80,14 +82,60 @@ void FTechnocraneEditorModule::StartupModule()
 		FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
 		PropertyModule.RegisterCustomClassLayout(ATechnocraneCamera::StaticClass()->GetFName(), FOnGetDetailCustomizationInstance::CreateStatic(&FCameraDetailsCustomization::MakeInstance));
 		
-		//@TODO: Struct registration should happen using ::StaticStruct, not by string!!!
-		//PropertyModule.RegisterCustomPropertyTypeLayout( "SpritePolygonCollection", FOnGetPropertyTypeCustomizationInstance::CreateStatic( &FSpritePolygonCollectionCustomization::MakeInstance ) );
-
 		PropertyModule.NotifyCustomizationModuleChanged();
 	}
 
 	// Settings
 	RegisterSettings();
+
+	//
+	FTechnocraneEditorStyle::Initialize();
+	FTechnocraneEditorStyle::ReloadTextures();
+
+	FTechnocraneEditorCommands::Register();
+
+	// Toolbar
+	PluginCommands = MakeShareable(new FUICommandList);
+
+	// Dummy action for main toolbar button
+	PluginCommands->MapAction(
+		FTechnocraneEditorCommands::Get().PluginAction,
+		FExecuteAction::CreateRaw(this, &FTechnocraneEditorModule::PluginButtonClicked),
+		FCanExecuteAction());
+
+	// Only add the toolbar if SteamVR is the currently active tracking system
+	static FName SystemName(TEXT("Techncrane"));
+	if (FModuleManager::Get().IsModuleLoaded("TechnocranePlugin"))
+	{
+		TSharedPtr<FExtender> ToolbarExtender = MakeShareable(new FExtender);
+		ToolbarExtender->AddToolBarExtension("Settings", EExtensionHook::After, PluginCommands, FToolBarExtensionDelegate::CreateRaw(this, &FTechnocraneEditorModule::AddToolbarExtension));
+
+		FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
+		LevelEditorModule.GetToolBarExtensibilityManager()->AddExtender(ToolbarExtender);
+	}
+}
+
+void FTechnocraneEditorModule::PluginButtonClicked()
+{
+	// Empty on purpose
+}
+
+void FTechnocraneEditorModule::AddToolbarExtension(FToolBarBuilder& Builder)
+{
+	Builder.AddComboButton(
+		FUIAction(FExecuteAction::CreateRaw(this, &FTechnocraneEditorModule::PluginButtonClicked)),
+		FOnGetContent::CreateRaw(this, &FTechnocraneEditorModule::FillComboButton, PluginCommands),
+		LOCTEXT("TechnocraneInputBtn", "Technocrane"),
+		LOCTEXT("TechnocraneInputBtnTootlip", "Technocrane"),
+		FSlateIcon(FTechnocraneEditorStyle::GetStyleSetName(), "TechnocraneEditor.PluginAction")
+	);
+}
+
+TSharedRef<SWidget> FTechnocraneEditorModule::FillComboButton(TSharedPtr<class FUICommandList> Commands)
+{
+	FMenuBuilder MenuBuilder(true, Commands);
+
+	return MenuBuilder.MakeWidget();
 }
 
 void FTechnocraneEditorModule::ShutdownModule()

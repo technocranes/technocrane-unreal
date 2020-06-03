@@ -1,12 +1,15 @@
-// Copyright (c) 2019 Technocrane s.r.o. 
+// Copyright (c) 2020 Technocrane s.r.o. 
+//
+// https://github.com/technocranes/technocrane-unreal
 //
 // TechnocraneRuntimeSettings.cpp
-// Sergei <Neill3d> Solokhin 2019
+// Sergei <Neill3d> Solokhin
 
 #include "TechnocraneRuntimeSettings.h"
 #include "TechnocranePrivatePCH.h"
 
 UTechnocraneRuntimeSettings::UTechnocraneRuntimeSettings()
+	: CameraFrameRate(25, 1)
 {
 	bLiveByDefault = false;
 	bNetworkConnection = false;

@@ -1,7 +1,9 @@
-// Copyright (c) 2019 Technocrane s.r.o. 
+// Copyright (c) 2020 Technocrane s.r.o. 
+//
+// https://github.com/technocranes/technocrane-unreal
 //
 // TechnocraneEditor.Build.cs
-// Sergei <Neill3d> Solokhin 2019
+// Sergei <Neill3d> Solokhin
 
 using Path = System.IO.Path;
 
@@ -52,6 +54,14 @@ namespace UnrealBuildTool.Rules
 
             PrivateDependencyModuleNames.AddRange(
                 new string[] {
+                    "Projects",
+                    "InputCore",
+                    "UnrealEd",
+                    "LevelEditor",
+                    "CoreUObject",
+                    "Engine",
+                    "Slate",
+                    "SlateCore",
                     "TechnocranePlugin"
                 }
             );
