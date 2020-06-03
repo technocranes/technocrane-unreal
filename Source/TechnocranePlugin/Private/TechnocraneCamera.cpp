@@ -32,7 +32,11 @@ ATechnocraneCamera::ATechnocraneCamera(const FObjectInitializer& ObjectInitializ
 	//
 	if (UCineCameraComponent* comp = GetCineCameraComponent())
 	{
+#if (ENGINE_MINOR_VERSION >= 25)
+		comp->FocusSettings.FocusMethod = ECameraFocusMethod::Tracking;
+#else
 		comp->FocusSettings.FocusMethod = ECameraFocusMethod::None;
+#endif
 		comp->SetFilmbackPresetByName("35mm Full Aperture");
 	}
 	
