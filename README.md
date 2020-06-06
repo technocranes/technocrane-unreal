@@ -51,6 +51,9 @@ Every Frame Data contains property values
 * CameraOn
 * Running
 
+[![FrameDataPrint](https://github.com/technocranes/technocrane-unreal/blob/master/Images/frame_data_print.jpg)]()
+
+
 # Video Tutorial
 
 [![plugin_introduction](https://youtu.be/Nxp08jvDGdk)](https://youtu.be/Nxp08jvDGdk)
