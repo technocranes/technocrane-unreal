@@ -26,6 +26,31 @@
  Default settings and camera frames rate are presented in project settings under technocrane tracker group
 [![Settings](https://github.com/technocranes/technocrane-unreal/blob/master/Images/setup_6.jpg)]()
 
+# Live Link Frame Meta Data and Properties
+
+Every Frame Data constains additional meta data
+* CameraOn - 1/0 values
+* Running - 1/0 values
+* IsZoomCalibrated - 1/0 values
+* IsFocusCalibrated - 1/0 values
+* IsIrisCalibrated - 1/0 values
+* PacketNumber - number of a packet
+* HasTimeCode - packet data recevies time code, 1/0
+* RawTimeCode - raw packet timecode value
+* FrameRate - string of camera frame rate (according to technocrane project settings)
+
+Every Frame Data contains property values
+* TrackPosition
+* PacketNumber
+* raw x
+* raw y
+* raw z
+* raw pan
+* raw tilt
+* raw roll
+* CameraOn
+* Running
+
 # Video Tutorial
 
 [![plugin_introduction](https://youtu.be/Nxp08jvDGdk)](https://youtu.be/Nxp08jvDGdk)
