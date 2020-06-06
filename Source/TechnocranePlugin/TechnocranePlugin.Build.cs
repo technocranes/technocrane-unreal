@@ -51,6 +51,7 @@ namespace UnrealBuildTool.Rules
                     "CinematicCamera",
                     "LiveLink",
                     "LiveLinkInterface",
+                    "LiveLinkComponents",
                     "Messaging",
                     "Networking"
                 }

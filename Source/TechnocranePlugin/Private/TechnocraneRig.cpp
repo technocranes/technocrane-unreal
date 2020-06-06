@@ -22,6 +22,14 @@
 #include "TechnocraneShared.h"
 #include <TechnocraneCamera.h>
 
+#include "LiveLinkComponentController.h"
+#include "ILiveLinkClient.h"
+#include "LiveLinkTypes.h"
+
+#include "Roles/LiveLinkCameraRole.h"
+#include "Roles/LiveLinkCameraTypes.h"
+#include "LiveLinkTechnocraneTypes.h"
+
 #define LOCTEXT_NAMESPACE "TechnocraneRig_Crane"
 
 
@@ -391,12 +399,70 @@ void ATechnocraneRig::UpdatePreviewMeshes()
 		
 		FVector raw_rotation = FVector::ZeroVector;
 
-		ATechnocraneCamera* myCineCamera = Cast<ATechnocraneCamera>(TargetComponent.OtherActor);
-		if (myCineCamera != nullptr)
+		
+		if (ACineCameraActor* cine_camera = Cast<ACineCameraActor>(TargetComponent.OtherActor))
 		{
-			FTransform camera_transform = myCineCamera->GetTransform();
+			// get transform and track position / raw rotation if live link is presented
 
-			if (UCineCameraComponent* comp = myCineCamera->GetCineCameraComponent())
+			FTransform camera_transform = cine_camera->GetTransform();
+
+			if (UCineCameraComponent* comp = cine_camera->GetCineCameraComponent())
+			{
+				camera_transform = comp->GetRelativeTransform() * camera_transform;
+			}
+
+			// add some camera pivot offset
+			FTransform pivot_offset;
+			pivot_offset.SetLocation(CameraPivotOffset);
+
+			target = pivot_offset * camera_transform;
+
+			// track position / raw rotation
+
+			ULiveLinkComponentController* LiveLinkComponent = Cast<ULiveLinkComponentController>(cine_camera->GetComponentByClass(ULiveLinkComponentController::StaticClass()));
+			if (LiveLinkComponent && LiveLinkComponent->SubjectRepresentation.Role)
+			{
+				//if Subjects role direct controller is us, set the component to control to what we had
+				
+				if (ULiveLinkCameraRole* LiveLinkRole = Cast<ULiveLinkCameraRole>(LiveLinkComponent->SubjectRepresentation.Role->GetDefaultObject()))
+				{
+					
+					//Create the struct holder and make it point to the output data
+					
+					IModularFeatures& ModularFeatures = IModularFeatures::Get();
+					if (ModularFeatures.IsModularFeatureAvailable(ILiveLinkClient::ModularFeatureName))
+					{
+						ILiveLinkClient& LiveLinkClient = ModularFeatures.GetModularFeature<ILiveLinkClient>(ILiveLinkClient::ModularFeatureName);
+						
+						FLiveLinkSubjectFrameData CurrentFrameData;
+						bool bSuccess = LiveLinkClient.EvaluateFrame_AnyThread(LiveLinkComponent->SubjectRepresentation.Subject, LiveLinkComponent->SubjectRepresentation.Role, CurrentFrameData);
+							
+						if (bSuccess)
+						{
+							FLiveLinkCameraFrameData* FrameData = CurrentFrameData.FrameData.Cast<FLiveLinkCameraFrameData>();
+
+							if (FrameData->PropertyValues.Num() > 8)
+							{
+								TrackPosition = FrameData->PropertyValues[static_cast<int32>(EPacketProperties::TrackPosition)];
+								raw_rotation = FVector(
+									FrameData->PropertyValues[static_cast<int32>(EPacketProperties::Pan)],
+									FrameData->PropertyValues[static_cast<int32>(EPacketProperties::Tilt)],
+									FrameData->PropertyValues[static_cast<int32>(EPacketProperties::Roll)]
+								);
+							}
+						}
+					}
+					
+				}
+			}
+
+
+		}
+		else if (ATechnocraneCamera* technocrane_camera = Cast<ATechnocraneCamera>(TargetComponent.OtherActor))
+		{
+			FTransform camera_transform = technocrane_camera->GetTransform();
+
+			if (UCineCameraComponent* comp = technocrane_camera->GetCineCameraComponent())
 			{
 				 camera_transform = comp->GetRelativeTransform() * camera_transform;
 			}
@@ -409,9 +475,8 @@ void ATechnocraneRig::UpdatePreviewMeshes()
 			
 			// check for track position
 			
-			TrackPosition = myCineCamera->TrackPosition;
-			raw_rotation = myCineCamera->RawRotation;
-			
+			TrackPosition = technocrane_camera->TrackPosition;
+			raw_rotation = technocrane_camera->RawRotation;
 		}
 		
 		const float track_position = TrackPosition;

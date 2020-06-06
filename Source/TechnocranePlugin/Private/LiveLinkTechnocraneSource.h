@@ -58,18 +58,18 @@ private:
 	// Our identifier in LiveLink
 	FGuid					m_SourceGuid;
 
-	FMessageAddress			ConnectionAddress;
-	
 	FText					m_SourceType;
 	FText					m_SourceMachineName;
 	FText					m_SourceStatus;
+
+	bool					m_LastStatusFlags[4]{ false };
 
 	bool					m_UseNetwork;
 	FIPv4Endpoint			m_NetworkAddress;
 	bool					m_NetworkBindAnyAddress;
 	bool					m_NetworkBroadcast;
 
-	int						m_SerialPort;
+	int32					m_SerialPort;
 
 	
 	// Threadsafe Bool for terminating the main thread loop
@@ -77,21 +77,13 @@ private:
 	FThreadSafeBool			m_CreateStaticSubject;
 
 	// Thread to run socket operations on
-	FRunnableThread* Thread;
+	FRunnableThread*		m_Thread;
 
 	// Name of the sockets thread
-	FString ThreadName;
+	FString					m_ThreadName;
 
-	// Time to wait between attempted receives
-	FTimespan WaitTime;
 
-	int32	m_CooldownTimer{ 0 };
-
-	// List of subjects we've already encountered
-	TSet<FName> EncounteredSubjects;
-
-	// Buffer to receive socket data into
-	TArray<uint8> RecvBuffer;
+	int32					m_CooldownTimer{ 0 };
 
 	NTechnocrane::CTechnocrane_Hardware*	m_Hardware{ nullptr };
 
@@ -99,5 +91,5 @@ private:
 	bool CompareOptions(const NTechnocrane::SOptions& a, const NTechnocrane::SOptions& b);
 
 	bool KeepLive(const bool compare_options=false);
-
+	void UpdateStatus(const NTechnocrane::STechnocrane_Packet& packet, const bool force_update);
 };
