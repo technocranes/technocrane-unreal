@@ -8,6 +8,8 @@
 #include "TechnocraneRuntimeSettings.h"
 #include "TechnocranePrivatePCH.h"
 
+#include "Math\Interval.h"
+
 UTechnocraneRuntimeSettings::UTechnocraneRuntimeSettings()
 	: CameraFrameRate(25, 1)
 {
@@ -20,4 +22,8 @@ UTechnocraneRuntimeSettings::UTechnocraneRuntimeSettings()
 	NetworkPortIdByDefault = 15246;
 	SpaceScaleByDefault = 100.0f;
 	bPacketContainsRawAndCalibratedData = false;
+
+	ZoomRange = FFloatInterval(0.0f, 100.0f);
+	FocusRange = FFloatInterval(0.0f, 100.0f);
+	IrisRange = FFloatInterval(0.0f, 100.0f);
 }

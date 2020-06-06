@@ -41,9 +41,16 @@ FLiveLinkTechnocraneSource::FLiveLinkTechnocraneSource(bool use_network, int ser
 
 	// Live link params
 	m_SourceStatus = LOCTEXT("SourceStatus_Waiting", "Waiting");
-	m_SourceType = LOCTEXT("TechnocraneLiveLinkSourceType", "Technocrane LiveLink");
-	m_SourceMachineName = address.ToText();
+	m_SourceType = LOCTEXT("TechnocraneLiveLinkSourceType", "Technocrane");
 	
+	if (use_network)
+	{
+		m_SourceMachineName = address.ToText();
+	}
+	else
+	{
+		m_SourceMachineName = FText::FromString(TEXT("COM ") + FString::FromInt(serial_port));
+	}
 	
 	m_Hardware = new NTechnocrane::CTechnocrane_Hardware();
 	m_Hardware->Init(false, false, false);
@@ -167,14 +174,16 @@ void FLiveLinkTechnocraneSource::HandleReceivedData(const NTechnocrane::STechnoc
 	if (m_Stopping)
 		return;
 
-	if (!GetDefault<UTechnocraneRuntimeSettings>())
+	const UTechnocraneRuntimeSettings* settings = GetDefault<UTechnocraneRuntimeSettings>();
+
+	if (!settings)
 		return;
 
 	const float x = packet.Position[2];
 	const float y = packet.Position[0];
 	const float z = packet.Position[1];
 
-	const float space_scale = GetDefault<UTechnocraneRuntimeSettings>()->SpaceScaleByDefault;
+	const float space_scale = settings->SpaceScaleByDefault;
 
 	FVector		v(space_scale * y, space_scale * x, space_scale * z);
 	FRotator	rot(packet.Tilt, 90.0f + packet.Pan, packet.Roll);
@@ -182,19 +191,19 @@ void FLiveLinkTechnocraneSource::HandleReceivedData(const NTechnocrane::STechnoc
 	const float track_position = space_scale * packet.TrackPos;
 
 	float zoom = 1.0;
-	bool IsZoomCalibrated = NTechnocrane::ComputeZoomf(zoom, packet.Zoom, 0.0f, 100.0f);
+	bool IsZoomCalibrated = NTechnocrane::ComputeZoomf(zoom, packet.Zoom, settings->ZoomRange.Min, settings->ZoomRange.Max);
 	
 	float iris = 1.0;
 	bool IsIrisCalibrated = false;
 	
-	const bool packed_data = GetDefault<UTechnocraneRuntimeSettings>()->bPacketContainsRawAndCalibratedData;
+	const bool packed_data = settings->bPacketContainsRawAndCalibratedData;
 	if (!packed_data)
 	{
-		IsIrisCalibrated = NTechnocrane::ComputeIrisf(iris, packet.Iris, 0.0f, 100.0f);
+		IsIrisCalibrated = NTechnocrane::ComputeIrisf(iris, packet.Iris, settings->IrisRange.Min, settings->IrisRange.Max);
 	}
 
 	float focus = 1.0;
-	bool IsFocusCalibrated = NTechnocrane::ComputeFocusf(focus, packet.Focus, 0.0f, 100.0f);
+	bool IsFocusCalibrated = NTechnocrane::ComputeFocusf(focus, packet.Focus, settings->FocusRange.Min, settings->FocusRange.Max);
 
 	//
 	// static data
@@ -251,7 +260,7 @@ void FLiveLinkTechnocraneSource::HandleReceivedData(const NTechnocrane::STechnoc
 	const int32 packet_number = packet.PacketNumber;
 
 	FTimecode TimeCode;
-	FFrameRate FrameRate(GetDefault<UTechnocraneRuntimeSettings>()->CameraFrameRate);
+	FFrameRate FrameRate(settings->CameraFrameRate);
 
 	if (has_timecode)
 	{

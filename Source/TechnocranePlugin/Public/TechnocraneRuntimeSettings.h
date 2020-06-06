@@ -54,6 +54,16 @@ public:
 	UPROPERTY(EditAnywhere, config, Category=Settings)
 	float SpaceScaleByDefault;
 	
+	// Convert uncalibrated percentage into a range
+	UPROPERTY(EditAnywhere, config, Category = UncalibratedRanges)
+	FFloatInterval ZoomRange;
+
+	UPROPERTY(EditAnywhere, config, Category = UncalibratedRanges)
+	FFloatInterval FocusRange;
+
+	UPROPERTY(EditAnywhere, config, Category = UncalibratedRanges)
+	FFloatInterval IrisRange;
+
 	// Specify a default packet raw data space scale
 	UPROPERTY(EditAnywhere, config, Category = Settings)
 	bool bPacketContainsRawAndCalibratedData;
