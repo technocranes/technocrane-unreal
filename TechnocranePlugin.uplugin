@@ -1,7 +1,7 @@
 {
   "FileVersion": 3,
-  "Version": 140,
-  "VersionName": "1.4.0",
+  "Version": 141,
+  "VersionName": "1.4.1",
   "FriendlyName": "Technocrane Plugin",
   "Description": "Technocrane Tracking Plugin.",
   "Category": "Input Devices",
@@ -10,7 +10,7 @@
   "DocsURL": "https://github.com/technocranes/technocrane-unreal",
   "MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/7ac283e8aa09461380eaa412284d8087",
   "SupportURL": "https://github.com/technocranes/technocrane-unreal",
-  "EngineVersion": [ "4.22.0", "4.23.0", "4.24.0", "4.25.0" ],
+  "EngineVersion": [ "4.22.0", "4.23.0", "4.24.0", "4.25.0", "4.26.0" ],
   "EnabledByDefault": false,
   "CanContainContent": true,
   "IsBetaVersion": false,
