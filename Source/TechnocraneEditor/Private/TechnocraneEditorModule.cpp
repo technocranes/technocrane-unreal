@@ -103,16 +103,17 @@ void FTechnocraneEditorModule::StartupModule()
 		FExecuteAction::CreateRaw(this, &FTechnocraneEditorModule::PluginButtonClicked),
 		FCanExecuteAction());
 
-	// Only add the toolbar if SteamVR is the currently active tracking system
-	static FName SystemName(TEXT("Techncrane"));
-	if (FModuleManager::Get().IsModuleLoaded("TechnocranePlugin"))
-	{
-		TSharedPtr<FExtender> ToolbarExtender = MakeShareable(new FExtender);
-		ToolbarExtender->AddToolBarExtension("Settings", EExtensionHook::After, PluginCommands, FToolBarExtensionDelegate::CreateRaw(this, &FTechnocraneEditorModule::AddToolbarExtension));
-
-		FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
-		LevelEditorModule.GetToolBarExtensibilityManager()->AddExtender(ToolbarExtender);
-	}
+	// TODO: add functionality and activate the toolbar button
+	// Only add the toolbar if TechnocranePlugin is the currently active
+	//static FName SystemName(TEXT("Technocrane"));
+	//if (FModuleManager::Get().IsModuleLoaded("TechnocranePlugin"))
+	//{
+	//	TSharedPtr<FExtender> ToolbarExtender = MakeShareable(new FExtender);
+	//	ToolbarExtender->AddToolBarExtension("Settings", EExtensionHook::After, PluginCommands, FToolBarExtensionDelegate::CreateRaw(this, &FTechnocraneEditorModule::AddToolbarExtension));
+	//
+	//	FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
+	//	LevelEditorModule.GetToolBarExtensibilityManager()->AddExtender(ToolbarExtender);
+	//}
 }
 
 void FTechnocraneEditorModule::PluginButtonClicked()

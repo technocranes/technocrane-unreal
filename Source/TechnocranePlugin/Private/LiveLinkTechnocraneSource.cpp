@@ -22,6 +22,8 @@
 #include "TechnocraneRuntimeSettings.h"
 #include "LiveLinkTechnocraneTypes.h"
 
+#include "Windows/WindowsPlatformTime.h"
+
 #define LOCTEXT_NAMESPACE "TechnocraneLiveLinkSource"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -343,10 +345,14 @@ bool FLiveLinkTechnocraneSource::KeepLive(const bool compare_options)
 	if (!m_Hardware->IsReady() )
 	{
 		m_SourceStatus = LOCTEXT("SourceStatus_Waiting", "Waiting");
-		m_CooldownTimer -= 1;
+		
+		const double curr_time{ FPlatformTime::Seconds() };
+		constexpr double eps_time{ 7.0 };
 
-		if (m_CooldownTimer <= 0)
+		if (curr_time - m_CooldownTimer > eps_time)
 		{
+			m_CooldownTimer = curr_time;
+
 			NTechnocrane::SOptions	options;
 			PrepareOptions(options);
 			m_Hardware->ClearLastError();
@@ -357,8 +363,6 @@ bool FLiveLinkTechnocraneSource::KeepLive(const bool compare_options)
 			}
 			else
 			{
-				m_CooldownTimer = 10000;
-
 				UE_LOG(LogTemp, Log, TEXT("Failed to connect to a hardware on a specified port"));
 				m_SourceStatus = LOCTEXT("SourceStatus_Failed", "Failed to Connect");
 				return false;

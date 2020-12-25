@@ -83,7 +83,7 @@ private:
 	FString					m_ThreadName;
 
 
-	int32					m_CooldownTimer{ 0 };
+	double					m_CooldownTimer{ 0.0 };
 
 	NTechnocrane::CTechnocrane_Hardware*	m_Hardware{ nullptr };
 
