@@ -10,6 +10,7 @@
 #include "CoreMinimal.h"
 #include "UObject/ObjectMacros.h"
 #include "Widgets/SCompoundWidget.h"
+#include "Widgets/Input/SNumericEntryBox.h"
 #include "Input/Reply.h"
 #include "Types/SlateEnums.h"
 #include "Widgets/DeclarativeSyntaxSupport.h"

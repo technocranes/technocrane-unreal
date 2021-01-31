@@ -208,7 +208,7 @@ void ATechnocraneCamera::Tick(float DeltaTime)
 }
 
 #if WITH_EDITOR
-bool ATechnocraneCamera::CanEditChange(const UProperty* InProperty) const
+bool ATechnocraneCamera::CanEditChange(const FProperty* InProperty) const
 {
 	const bool ParentVal = Super::CanEditChange(InProperty);
 
