@@ -63,6 +63,7 @@ private:
 	FText					m_SourceStatus;
 
 	bool					m_LastStatusFlags[4]{ false };
+	float					m_LastRate{ 0.0 };
 
 	bool					m_UseNetwork;
 	FIPv4Endpoint			m_NetworkAddress;
@@ -91,5 +92,5 @@ private:
 	bool CompareOptions(const NTechnocrane::SOptions& a, const NTechnocrane::SOptions& b);
 
 	bool KeepLive(const bool compare_options=false);
-	void UpdateStatus(const NTechnocrane::STechnocrane_Packet& packet, const bool force_update);
+	void UpdateStatus(const NTechnocrane::STechnocrane_Packet& packet, const bool force_update, const float rate);
 };

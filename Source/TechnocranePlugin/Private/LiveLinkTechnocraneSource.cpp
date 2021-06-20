@@ -111,15 +111,17 @@ void FLiveLinkTechnocraneSource::Stop()
 	m_Stopping = true;
 }
 
-void FLiveLinkTechnocraneSource::UpdateStatus(const NTechnocrane::STechnocrane_Packet& packet, const bool force_update)
+void FLiveLinkTechnocraneSource::UpdateStatus(const NTechnocrane::STechnocrane_Packet& packet, const bool force_update, const float rate)
 {
 	const bool flags[4] = { packet.HasTimeCode(), packet.IsZoomCalibrated, packet.IsIrisCalibrated, packet.IsFocusCalibrated };
+	const bool updated_rate = std::abs(rate - m_LastRate) > 1.0f;
 
-	if (force_update || flags[0] != m_LastStatusFlags[0] || flags[1] != m_LastStatusFlags[1] || flags[2] != m_LastStatusFlags[2] || flags[3] != m_LastStatusFlags[3])
+	if (updated_rate || force_update || flags[0] != m_LastStatusFlags[0] || flags[1] != m_LastStatusFlags[1] || flags[2] != m_LastStatusFlags[2] || flags[3] != m_LastStatusFlags[3])
 	{
 		FString text;
-		text = FString::Format(TEXT("Receiving [T:{0}, Z:{1}, F:{2}, I:{3}]"),
+		text = FString::Format(TEXT("Receiving {0} [T:{1}, Z:{2}, F:{3}, I:{4}]"),
 			{
+				FString::SanitizeFloat(floorf(rate), 2),
 				(packet.HasTimeCode()) ? TEXT("Y") : TEXT("N"),
 				(packet.IsZoomCalibrated) ? TEXT("Y") : TEXT("N"),
 				(packet.IsFocusCalibrated) ? TEXT("Y") : TEXT("N"),
@@ -130,19 +132,29 @@ void FLiveLinkTechnocraneSource::UpdateStatus(const NTechnocrane::STechnocrane_P
 		m_SourceStatus = FText::FromString(text);
 
 		memcpy(m_LastStatusFlags, flags, sizeof(bool) * 4);
+		m_LastRate = rate;
 	}
 }
 
 uint32 FLiveLinkTechnocraneSource::Run()
 {
 	bool first_enter{ true };
+	float last_timestamp = FPlatformTime::Seconds();
+	constexpr float reset_time{ 3.0f };
 
 	while (!m_Stopping)
 	{
 		if (!m_Hardware)
 			break;
 
-		KeepLive(first_enter);
+		const float curr_time = FPlatformTime::Seconds();
+
+		if (KeepLive(first_enter))
+		{
+			memset(m_LastStatusFlags, 0, sizeof(m_LastStatusFlags));
+			m_LastRate = 0.0f;
+			last_timestamp = curr_time;
+		}
 		
 		if (m_Hardware->IsReady())
 		{
@@ -153,12 +165,15 @@ uint32 FLiveLinkTechnocraneSource::Run()
 
 			if (m_Hardware->FetchDataPacket(packet, 1, index, packed_data) > 0)
 			{
-				UpdateStatus(packet, first_enter);
+				const float rate = m_Hardware->GetTimeCodeRate();
+				UpdateStatus(packet, first_enter, rate);
 				AsyncTask(ENamedThreads::GameThread, [this, packet]() { HandleReceivedData(packet); });
+				
+				last_timestamp = curr_time;
 			}
 		}
 
-		first_enter = false;
+		first_enter = ((curr_time - last_timestamp) > reset_time);
 	}
 
 	if (m_Hardware->IsReady())
@@ -354,22 +369,23 @@ bool FLiveLinkTechnocraneSource::KeepLive(const bool compare_options)
 			m_CooldownTimer = curr_time;
 
 			NTechnocrane::SOptions	options;
+			options = m_Hardware->GetOptions();
 			PrepareOptions(options);
 			m_Hardware->ClearLastError();
 
 			if (m_Hardware->Open(options))
 			{
 				m_Hardware->StartDataStream();
+				return true;
 			}
 			else
 			{
 				UE_LOG(LogTemp, Log, TEXT("Failed to connect to a hardware on a specified port"));
 				m_SourceStatus = LOCTEXT("SourceStatus_Failed", "Failed to Connect");
-				return false;
 			}
 		}
 	}
-	return true;
+	return false;
 }
 
 void FLiveLinkTechnocraneSource::PrepareOptions(NTechnocrane::SOptions& options)
