@@ -4,6 +4,8 @@
 
 [Introduction Video](https://youtu.be/VPmdLAun9WQ)
 
+[<img src="https://discord.com/assets/ff41b628a47ef3141164bfedb04fb220.png" width=10% height=10%>](https://discord.gg/Uqe2UQxq)
+
 # How to Install Manually
 
   Create a "Plugins" directory in the project root (near the "Content" directory) and create there sub-folder "TechnocranePlugin". Put the repository folders into the "TechnocranePlugin" folder. (e.g. "/MyProject/Plugins/TechnocranePlugin")
