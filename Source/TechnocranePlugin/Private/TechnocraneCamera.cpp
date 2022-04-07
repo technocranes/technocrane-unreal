@@ -32,7 +32,7 @@ ATechnocraneCamera::ATechnocraneCamera(const FObjectInitializer& ObjectInitializ
 	//
 	if (UCineCameraComponent* comp = GetCineCameraComponent())
 	{
-#if (ENGINE_MINOR_VERSION >= 25)
+#if (ENGINE_MAJOR_VERSION > 4 || ENGINE_MINOR_VERSION >= 25)
 		comp->FocusSettings.FocusMethod = ECameraFocusMethod::Tracking;
 #else
 		comp->FocusSettings.FocusMethod = ECameraFocusMethod::None;

@@ -95,7 +95,6 @@ namespace UnrealBuildTool.Rules
             if (Target.Platform == UnrealTargetPlatform.Win64)
             {
                 string TechnocraneLibBinPath = Path.Combine(TechnocranePath, "lib", "Win64");
-                PublicLibraryPaths.Add(TechnocraneLibBinPath);
                 PublicAdditionalLibraries.Add(Path.Combine(TechnocraneLibBinPath, "TechnocraneLib.lib"));
 
                 PublicDelayLoadDLLs.Add("TechnocraneLib.dll");
