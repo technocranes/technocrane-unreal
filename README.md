@@ -4,7 +4,7 @@
 
 [Introduction Video](https://youtu.be/VPmdLAun9WQ)
 
-[<img src="https://discord.com/assets/ff41b628a47ef3141164bfedb04fb220.png" width=10% height=10%>](https://discord.gg/nqPZxmhW)
+[<img src="https://discord.com/assets/ff41b628a47ef3141164bfedb04fb220.png" width=10% height=10%>](https://discord.gg/qw7QxSR)
 
 # How to Install Manually
 
