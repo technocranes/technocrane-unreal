@@ -10,7 +10,7 @@
   "DocsURL": "https://github.com/technocranes/technocrane-unreal",
   "MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/7ac283e8aa09461380eaa412284d8087",
   "SupportURL": "https://github.com/technocranes/technocrane-unreal",
-  "EngineVersion": [ "4.22.0", "4.23.0", "4.24.0", "4.25.0", "4.26.0", "4.27.0", "5.0", "5.1" ],
+  "EngineVersion": [ "4.22.0", "4.23.0", "4.24.0", "4.25.0", "4.26.0", "4.27.0", "5.0", "5.1", "5.2", "5.3" ],
   "EnabledByDefault": false,
   "CanContainContent": true,
   "IsBetaVersion": false,
