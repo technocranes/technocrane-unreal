@@ -387,7 +387,7 @@ void ATechnocraneRig::UpdatePreviewMeshes()
 			FCraneData* data = CranesData->FindRow<FCraneData>(FName(*preset_name), "", false);
 			TechnocraneRig.Impl->SetCranePresetData(data);
 
-			MeshComponent->SetSkeletalMesh(preview_mesh);
+			MeshComponent->SetSkinnedAssetAndUpdate(preview_mesh);
 			
 			LastPreviewModel = CraneModel;
 		}

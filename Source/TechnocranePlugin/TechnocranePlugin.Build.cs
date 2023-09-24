@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Technocrane s.r.o. 
+// Copyright (c) 2020-2023 Technocrane s.r.o. 
 //
 // https://github.com/technocranes/technocrane-unreal
 //
