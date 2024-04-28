@@ -10,6 +10,7 @@
 #include "CoreMinimal.h"
 #include "UObject/ObjectMacros.h"
 #include "UObject/Object.h"
+#include "Misc/FrameRate.h"
 #include "TechnocraneRuntimeSettings.generated.h"
 
 /**

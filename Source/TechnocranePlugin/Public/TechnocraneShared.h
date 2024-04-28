@@ -8,6 +8,7 @@
 // Sergei <Neill3d> Solokhin
 
 #include "CoreMinimal.h"
+#include "UObject/ObjectMacros.h"
 
 #define TECHNOCRANE_MAX_COLUMNS_COUNT	3
 #define TECHNOCRANE_MAX_BEAMS_COUNT		4

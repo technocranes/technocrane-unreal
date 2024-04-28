@@ -9,6 +9,7 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 #include "ITechnocranePlugin.h"
+#include "technocrane_hardware.h"
 
 #include "Interfaces/IPluginManager.h"
 

@@ -7,9 +7,11 @@
 
 #include "TechnocraneEditorCommands.h"
 
+#define LOCTEXT_NAMESPACE "TechnocraneEditor"
 
 void FTechnocraneEditorCommands::RegisterCommands()
 {
 	UI_COMMAND(PluginAction, "TechnocraneEditor", "Add Tracker to a camera", EUserInterfaceActionType::Button, FInputGesture());
 }
 
+#undef LOCTEXT_NAMESPACE // "TechnocraneEditor"

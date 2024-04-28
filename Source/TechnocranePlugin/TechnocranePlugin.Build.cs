@@ -5,11 +5,10 @@
 // TechnocranePlugin.Build.cs
 // Sergei <Neill3d> Solokhin
 
-using UnrealBuildTool;
-using System;
 using System.IO;
 
 using Path = System.IO.Path;
+using Microsoft.Extensions.Logging;
 
 namespace UnrealBuildTool.Rules
 {
@@ -19,7 +18,7 @@ namespace UnrealBuildTool.Rules
         public TechnocranePlugin(ReadOnlyTargetRules Target) : base(Target)
 		{
             PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-            bEnforceIWYU = true;
+            
             bLegacyPublicIncludePaths = false;
 
             if (!Target.bUseUnityBuild)
@@ -55,7 +54,7 @@ namespace UnrealBuildTool.Rules
                     "Messaging",
                     "Networking"
                 }
-				);
+			);
 
 			PrivateDependencyModuleNames.AddRange(
 				new string[]
@@ -70,7 +69,7 @@ namespace UnrealBuildTool.Rules
                     "Slate",
                     "Sockets"
                 }
-				);
+			);
 
             PrivateIncludePathModuleNames.AddRange(
                 new string[] {
@@ -78,29 +77,31 @@ namespace UnrealBuildTool.Rules
                     "MessagingCommon",
                 });
 
-            DynamicallyLoadedModuleNames.AddRange(
-				new string[]
-				{
-					// ... add any modules that your module loads dynamically here ...
-                    //"Messaging",
-                }
-				);
-
             /****************************************/
 
             // If you update this path, ensure the DLL runtime delay load path in TechnocraneModule::StartupModule stays in sync.
             string TechnocranePath = Path.GetFullPath(Path.Combine(ModuleDirectory, "..", "ThirdParty", "TechnocraneSDK"));
-            PublicSystemIncludePaths.Add(Path.Combine(TechnocranePath, "include"));
-
-            if (Target.Platform == UnrealTargetPlatform.Win64)
+            
+            if (Directory.Exists(TechnocranePath))
             {
-                string TechnocraneLibBinPath = Path.Combine(TechnocranePath, "lib", "Win64");
-                PublicAdditionalLibraries.Add(Path.Combine(TechnocraneLibBinPath, "TechnocraneLib.lib"));
+                Logger.LogInformation("TechnocranePath: " + Path.Combine(TechnocranePath, "include"));
 
-                PublicDelayLoadDLLs.Add("TechnocraneLib.dll");
-                // Add API for Runtime too
-                RuntimeDependencies.Add(Path.Combine(TechnocraneLibBinPath, "TechnocraneLib.lib"));
-                RuntimeDependencies.Add(Path.Combine(TechnocraneLibBinPath, "TechnocraneLib.dll"));
+                PublicSystemIncludePaths.Add(Path.Combine(TechnocranePath, "include"));
+                
+                if (Target.Platform == UnrealTargetPlatform.Win64)
+                {
+                    string TechnocraneLibBinPath = Path.Combine(TechnocranePath, "lib", "Win64");
+                    PublicAdditionalLibraries.Add(Path.Combine(TechnocraneLibBinPath, "TechnocraneLib.lib"));
+
+                    PublicDelayLoadDLLs.Add("TechnocraneLib.dll");
+                    // Add API for Runtime too
+                    RuntimeDependencies.Add(Path.Combine(TechnocraneLibBinPath, "TechnocraneLib.lib"));
+                    RuntimeDependencies.Add(Path.Combine(TechnocraneLibBinPath, "TechnocraneLib.dll"));
+                }
+            }
+            else
+            {
+                Logger.LogError("TechnocranePath Not Found: " + TechnocranePath);
             }
         }
     }

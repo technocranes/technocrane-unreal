@@ -14,22 +14,14 @@ namespace UnrealBuildTool.Rules
         public TechnocraneEditor(ReadOnlyTargetRules Target) : base(Target)
 		{
             PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-            bEnforceIWYU = true;
+            
             bLegacyPublicIncludePaths = false;
-
-            if (!Target.bUseUnityBuild)
-            {
-                PrivatePCHHeaderFile = "Private/VoxelEditorPCH.h";
-#if UE_4_22_OR_LATER
-#else
-                PrivateDependencyModuleNames.Add("LivePP");
-#endif
-            }
 
             PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Public"));
             PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Private"));
 
-            OptimizeCode = CodeOptimization.Never;
+            // NOTE: for debug purpose
+            //OptimizeCode = CodeOptimization.Never;
 
             PublicDependencyModuleNames.AddRange(
 				new string[] {
@@ -65,8 +57,6 @@ namespace UnrealBuildTool.Rules
                     "TechnocranePlugin"
                 }
             );
-
-          
         }
 	}
 }
