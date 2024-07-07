@@ -7,7 +7,7 @@
 
 #include "TechnocraneEditorCommands.h"
 
-#define LOCTEXT_NAMESPACE "TechnocraneEditor"
+#define LOCTEXT_NAMESPACE "TechnocraneCamera"
 
 void FTechnocraneEditorCommands::RegisterCommands()
 {

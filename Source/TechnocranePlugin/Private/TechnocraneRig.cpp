@@ -21,6 +21,7 @@
 
 #include "TechnocraneShared.h"
 #include <TechnocraneCamera.h>
+#include <TechnocraneCameraComponent.h>
 
 #include "LiveLinkComponentController.h"
 #include "ILiveLinkClient.h"
@@ -30,7 +31,7 @@
 #include "Roles/LiveLinkCameraTypes.h"
 #include "LiveLinkTechnocraneTypes.h"
 
-#define LOCTEXT_NAMESPACE "TechnocraneRig_Crane"
+#define LOCTEXT_NAMESPACE "TechnocraneCamera"
 
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -306,8 +307,6 @@ ATechnocraneRig::ATechnocraneRig()
 	// create preview meshes
 	if (!IsRunningDedicatedServer())
 	{
-		// DONE: how to deal with a plugin assets !
-		
 		const FString DataPath = TEXT("/TechnocranePlugin/CranesData");
 		static ConstructorHelpers::FObjectFinder<UDataTable> CraneDataAsset(*DataPath);
 		if (CraneDataAsset.Succeeded())
@@ -319,8 +318,6 @@ ATechnocraneRig::ATechnocraneRig()
 		{
 			CranesData = nullptr;
 		}
-
-		//UpdatePreviewMeshes();
 	}
 #endif
 }
@@ -334,19 +331,18 @@ bool ATechnocraneRig::PreloadPreviewMeshes()
 		return false;
 	}
 		
-	const TArray<FName> raw_names = CranesData->GetRowNames();
+	const TArray<FName> RowNames = CranesData->GetRowNames();
 
-	for (const FName raw_name : raw_names)
+	for (const FName RawName : RowNames)
 	{
-		FString model_path("");
+		FString ModelPath("");
 
-		FCraneData* data = CranesData->FindRow<FCraneData>(raw_name, "", false);
-		if (data != nullptr)
+		if (FCraneData* Data = CranesData->FindRow<FCraneData>(RawName, "", false))
 		{
-			model_path = data->CraneModelPath;
+			ModelPath = Data->CraneModelPath;
 		}
 
-		ConstructorHelpers::FObjectFinder<USkeletalMesh> CraneBaseMesh(*model_path);
+		ConstructorHelpers::FObjectFinder<USkeletalMesh> CraneBaseMesh(*ModelPath);
 
 		if (CraneBaseMesh.Succeeded())
 		{
@@ -373,60 +369,64 @@ bool ATechnocraneRig::PreloadPreviewMeshes()
 
 void ATechnocraneRig::UpdatePreviewMeshes()
 {
-	
+	if (!TargetComponent.OtherActor.IsValid())
+		return;
+
 	if (PreviewMeshes.Num() > 0 && MeshComponent)
 	{
 		if (LastPreviewModel != CraneModel)
 		{
 			
 			// attach another crane
-			USkeletalMesh* preview_mesh = PreviewMeshes[static_cast<int32>(CraneModel)];
+			USkeletalMesh* PreviewMesh = PreviewMeshes[static_cast<int32>(CraneModel)];
 			
 			// crane preset data
-			const FString preset_name(FString::FromInt(static_cast<int32>(CraneModel) + 1));
-			FCraneData* data = CranesData->FindRow<FCraneData>(FName(*preset_name), "", false);
-			TechnocraneRig.Impl->SetCranePresetData(data);
+			const FString PresetName(FString::FromInt(static_cast<int32>(CraneModel) + 1));
+			FCraneData* Data = CranesData->FindRow<FCraneData>(FName(*PresetName), "", false);
+			TechnocraneRig.Impl->SetCranePresetData(Data);
 
-			MeshComponent->SetSkinnedAssetAndUpdate(preview_mesh);
+			MeshComponent->SetSkinnedAssetAndUpdate(PreviewMesh);
 			
 			LastPreviewModel = CraneModel;
 		}
 
 		// Perform kinematic updates
 
-		FTransform target = FTransform::Identity;
-		target.SetLocation(FVector(0.0f, 0.0f, 100.0f));
-		
-		FVector raw_rotation = FVector::ZeroVector;
+		FTransform Target = FTransform::Identity;
+		Target.SetLocation(FVector(0.0f, 0.0f, 100.0f));
+		FVector RawRotation = FVector::ZeroVector;
 
-		
-		if (ACineCameraActor* cine_camera = Cast<ACineCameraActor>(TargetComponent.OtherActor))
+		if (ACineCameraActor* CineCamera = Cast<ACineCameraActor>(TargetComponent.OtherActor))
 		{
 			// get transform and track position / raw rotation if live link is presented
 
-			FTransform camera_transform = cine_camera->GetTransform();
+			FTransform CameraTransform = CineCamera->GetTransform();
 
-			if (UCineCameraComponent* comp = cine_camera->GetCineCameraComponent())
+			if (UCineCameraComponent* comp = Cast<UCineCameraComponent>(CineCamera->GetCameraComponent()))
 			{
-				camera_transform = comp->GetRelativeTransform() * camera_transform;
+				CameraTransform = comp->GetRelativeTransform() * CameraTransform;
+			}
+			if (UTechnocraneCameraComponent* Comp = Cast< UTechnocraneCameraComponent>(CineCamera->GetCameraComponent()))
+			{
+				TrackPosition = Comp->TrackPos;
 			}
 
 			// add some camera pivot offset
-			FTransform pivot_offset;
-			pivot_offset.SetLocation(CameraPivotOffset);
+			FTransform NewPivotOffset;
+			NewPivotOffset.SetLocation(CameraPivotOffset);
 
-			target = pivot_offset * camera_transform;
+			Target = NewPivotOffset * CameraTransform;
+			RawRotation = CineCamera->GetActorRotation().Euler();
 
 			// track position / raw rotation
 
-			ULiveLinkComponentController* LiveLinkComponent = Cast<ULiveLinkComponentController>(cine_camera->GetComponentByClass(ULiveLinkComponentController::StaticClass()));
+			ULiveLinkComponentController* LiveLinkComponent = Cast<ULiveLinkComponentController>(CineCamera->GetComponentByClass(ULiveLinkComponentController::StaticClass()));
 			if (LiveLinkComponent && LiveLinkComponent->SubjectRepresentation.Role)
 			{
 				//if Subjects role direct controller is us, set the component to control to what we had
 				
 				if (ULiveLinkCameraRole* LiveLinkRole = Cast<ULiveLinkCameraRole>(LiveLinkComponent->SubjectRepresentation.Role->GetDefaultObject()))
 				{
-					
 					//Create the struct holder and make it point to the output data
 					
 					IModularFeatures& ModularFeatures = IModularFeatures::Get();
@@ -444,7 +444,7 @@ void ATechnocraneRig::UpdatePreviewMeshes()
 							if (FrameData->PropertyValues.Num() > 8)
 							{
 								TrackPosition = FrameData->PropertyValues[static_cast<int32>(EPacketProperties::TrackPosition)];
-								raw_rotation = FVector(
+								RawRotation = FVector(
 									FrameData->PropertyValues[static_cast<int32>(EPacketProperties::Pan)],
 									FrameData->PropertyValues[static_cast<int32>(EPacketProperties::Tilt)],
 									FrameData->PropertyValues[static_cast<int32>(EPacketProperties::Roll)]
@@ -452,37 +452,12 @@ void ATechnocraneRig::UpdatePreviewMeshes()
 							}
 						}
 					}
-					
 				}
 			}
-
-
 		}
-		else if (ATechnocraneCamera* technocrane_camera = Cast<ATechnocraneCamera>(TargetComponent.OtherActor))
-		{
-			FTransform camera_transform = technocrane_camera->GetTransform();
-
-			if (UCineCameraComponent* comp = technocrane_camera->GetCineCameraComponent())
-			{
-				 camera_transform = comp->GetRelativeTransform() * camera_transform;
-			}
-
-			// add some camera pivot offset
-			FTransform pivot_offset;
-			pivot_offset.SetLocation(CameraPivotOffset);
-
-			target = pivot_offset * camera_transform;
-			
-			// check for track position
-			
-			TrackPosition = technocrane_camera->TrackPosition;
-			raw_rotation = technocrane_camera->RawRotation;
-		}
-		
-		const float track_position = TrackPosition;
-		const FQuat neck_q = FQuat::MakeFromEuler(FVector(90.0f, 0.0f, 180.0f + raw_rotation.X));
-		
-		TechnocraneRig.Impl->Compute(GetWorld(), target.GetLocation(), track_position, raw_rotation, neck_q);
+		// TODO: recalculate the way how neck is rotated in non live mode !
+		const FQuat NeckQ = FQuat::MakeFromEuler(FVector(90.0f, 0.0f, 180.0f + RawRotation.X));
+		TechnocraneRig.Impl->Compute(GetWorld(), Target.GetLocation(), TrackPosition, RawRotation, NeckQ);
 	}
 }
 #endif

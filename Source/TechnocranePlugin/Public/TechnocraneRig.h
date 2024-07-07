@@ -94,6 +94,7 @@ enum class ECranePreviewModelsEnum : uint8
 {
 	ECranePreview_Technodolly = 0		UMETA(DisplayName = "Technodolly"),
 	ECranePreview_Supertechno50 = 1		UMETA(DisplayName = "SuperTechno 50 Plus"),
+	ECranePreview_Technodolly25 = 2		UMETA(DisplayName = "Technodolly 25"),
 	ECranePreview_Count					UMETA(Hidden)
 };
 
@@ -111,6 +112,10 @@ public:
 	TUniquePtr<FTechnocraneRigImpl> Impl;
 };
 
+/**
+ * an actor that simulates a Technocrane Crane Rig to follow a target camera position
+ *  in case tracks are used, the position on track could be received from live or exported tecnocrane data
+*/
 UCLASS(Blueprintable, ClassGroup = "Technocrane", meta = (BlueprintSpawnableComponent))
 class TECHNOCRANEPLUGIN_API ATechnocraneRig : public AActor
 {
@@ -175,7 +180,7 @@ private:
 	UPROPERTY()
 		UPoseableMeshComponent*	MeshComponent;
 	
-	/** Data table with crane presets */
+	/** Data table with crane presets, the asset is part of technocrane plugin content */
 	UPROPERTY()
 		UDataTable*				CranesData;
 #endif

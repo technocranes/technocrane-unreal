@@ -13,7 +13,7 @@
 #include "UObject/ObjectMacros.h"
 #include "UObject/Object.h"
 
-#define LOCTEXT_NAMESPACE "AssetTypeActions"
+#define LOCTEXT_NAMESPACE "TechnocraneCamera"
 
 //////////////////////////////////////////////////////////////////////////
 // FFlipbookAssetTypeActions
@@ -35,7 +35,7 @@ FColor FAssetTypeActions_TechnocraneCamera::GetTypeColor() const
 
 UClass* FAssetTypeActions_TechnocraneCamera::GetSupportedClass() const
 {
-	return ATechnocraneCamera::StaticClass();
+	return ATDCamera::StaticClass();
 }
 
 uint32 FAssetTypeActions_TechnocraneCamera::GetCategories()
@@ -48,7 +48,7 @@ uint32 FAssetTypeActions_TechnocraneCamera::GetCategories()
 UTechnocraneCameraFactory::UTechnocraneCameraFactory(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	SupportedClass = ATechnocraneCamera::StaticClass();
+	SupportedClass = ATDCamera::StaticClass();
 
 	bCreateNew = true;
 	bEditorImport = false;
@@ -57,8 +57,7 @@ UTechnocraneCameraFactory::UTechnocraneCameraFactory(const FObjectInitializer& O
 
 UObject* UTechnocraneCameraFactory::FactoryCreateNew(UClass* Class, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn)
 {
-	ATechnocraneCamera* NewPreset = NewObject<ATechnocraneCamera>(InParent, InName, Flags);
-
+	ATDCamera* NewPreset = NewObject<ATDCamera>(InParent, InName, Flags);
 	return NewPreset;
 }
 

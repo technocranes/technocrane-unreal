@@ -31,7 +31,7 @@
 #include "TechnocraneRuntimeSettings.h"
 #include "ISettingsModule.h"
 
-#define LOCTEXT_NAMESPACE "TechnocraneEditor"
+#define LOCTEXT_NAMESPACE "TechnocraneCamera"
 
 IMPLEMENT_MODULE(FTechnocraneEditorModule, TechnocraneEditor)
 
@@ -80,7 +80,7 @@ void FTechnocraneEditorModule::StartupModule()
 	// Register the details customizations
 	{
 		FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
-		PropertyModule.RegisterCustomClassLayout(ATechnocraneCamera::StaticClass()->GetFName(), FOnGetDetailCustomizationInstance::CreateStatic(&FCameraDetailsCustomization::MakeInstance));
+		PropertyModule.RegisterCustomClassLayout(ATDCamera::StaticClass()->GetFName(), FOnGetDetailCustomizationInstance::CreateStatic(&FCameraDetailsCustomization::MakeInstance));
 		
 		PropertyModule.NotifyCustomizationModuleChanged();
 	}

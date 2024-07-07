@@ -26,11 +26,4 @@ public:
 	// IDetailCustomization interface
 	virtual void CustomizeDetails(IDetailLayoutBuilder& DetailLayout) override;
 	// End of IDetailCustomization interface
-
-protected:
-	void BuildConnectionSection(IDetailCategoryBuilder& RenderingCategory, IDetailLayoutBuilder& DetailLayout);
-	void BuildTrackingDataSection(IDetailCategoryBuilder& category, IDetailLayoutBuilder& DetailLayout);
-
-	FText GetConnectionStatusText(TWeakObjectPtr<ATechnocraneCamera> WeakSprite) const;
-	EVisibility GetCustomLiveVisibility(TSharedPtr<IPropertyHandle> Property) const;
 };
