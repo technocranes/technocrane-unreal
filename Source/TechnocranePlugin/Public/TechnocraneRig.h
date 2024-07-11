@@ -136,15 +136,15 @@ public:
 
 	/** Defines how to begin (either at zero, or at a randomized value. */
 	UPROPERTY(EditAnywhere, Category = "Crane Controls")
-		ECranePreviewModelsEnum			CraneModel;
+	ECranePreviewModelsEnum			CraneModel{ ECranePreviewModelsEnum::ECranePreview_Technodolly };
 
 	/** Controls the pitch of the crane arm. */
 	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = "Crane Controls", meta = (Units = cm))
-		float TrackPosition;
+	float TrackPosition{ 0.0f };
 
 	/** Controls the amount of rails for the crane rig. */
 	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = "Crane Controls", meta = (ClampMin = 0, ClampMax = 6))
-		int AmountOfTracks;
+	int AmountOfTracks{ 0 };
 
 	/** Controls the attaced camera pivot offset. */
 	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = "Crane Controls", meta = (Units = cm))
@@ -166,7 +166,7 @@ private:
 
 	/** Root component to give the whole actor a transform. */
 	UPROPERTY(EditDefaultsOnly, Category = "Crane Components")
-		USceneComponent* TransformComponent;
+	USceneComponent* TransformComponent{ nullptr };
 
 	/** Camera component to use as a crane target. */
 	UPROPERTY(EditAnywhere, Category = "Crane Components")
@@ -178,16 +178,16 @@ private:
 		TArray<USkeletalMesh*> PreviewMeshes;
 	
 	UPROPERTY()
-		UPoseableMeshComponent*	MeshComponent;
+	UPoseableMeshComponent* MeshComponent{ nullptr };
 	
 	/** Data table with crane presets, the asset is part of technocrane plugin content */
 	UPROPERTY()
-		UDataTable*				CranesData;
+	UDataTable* CranesData{ nullptr };
 #endif
 
 private:
 	FTechnocraneRig				TechnocraneRig;
 	ECranePreviewModelsEnum		LastPreviewModel;
 
-	bool					mIsNeckRotationSetted;
+	bool					mIsNeckRotationSetted{ false };
 };

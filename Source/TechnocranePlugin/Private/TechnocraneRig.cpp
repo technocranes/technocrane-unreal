@@ -61,10 +61,10 @@ public:
 		mCraneData = data;
 	}
 
-	FVector ComputeHeadTransform()
+	FVector ComputeHeadTransform() const
 	{
-		const FName bone_name = GetCraneJointName(ECraneJoints::Head);
-		return mComponent->GetBoneLocation(bone_name, EBoneSpaces::WorldSpace);
+		const FName BoneName = GetCraneJointName(ECraneJoints::Head);
+		return mComponent->GetBoneLocation(BoneName, EBoneSpaces::WorldSpace);
 	}
 
 	bool Reset()
@@ -74,141 +74,117 @@ public:
 		return true;
 	}
 
-	// reompute crane transform to fit a target
-	bool Compute(UWorld* pWorld, const FVector& target, const float track_position, const FVector& raw_rotation, const FQuat& neck_rotation)
+	// recompute transform of crane elements in order to fit a target camera position and orientation
+	bool Compute(UWorld* World, const FVector& Target, const float TrackPosition, const FVector& RawRotation, const FQuat& NeckRotation)
 	{
 		if (!mCraneData)
 		{
 			return false;
 		}
 
-		const FTransform& base = mComponent->GetComponentTransform();
+		const FTransform& BaseTransform = mComponent->GetComponentTransform();
 
 		const float ZOffset = mCraneData->ZOffsetOnGround;		// make it appear in the right place
-		FVector const NewLoc(0.0f, track_position, ZOffset);
+		FVector const NewLoc(0.0f, TrackPosition, ZOffset);
 		
-		const FTransform parentTM = base;
-		const FTransform relativeTM = parentTM.GetRelativeTransformReverse(FTransform(target));
-		FVector vTarget3 = target; // relativeTM.GetLocation();
+		const FTransform RelativeTM = BaseTransform.GetRelativeTransformReverse(FTransform(Target));
+		FVector vTarget3 = Target; // relativeTM.GetLocation();
 
-		const FName root_name = GetCraneJointName(ECraneJoints::Base);
-		const FName columns_name = GetCraneJointName(ECraneJoints::Columns);
-		const FName beams_name = GetCraneJointName(ECraneJoints::Beams);
-		const FName gravity_name = GetCraneJointName(ECraneJoints::Gravity);
-		const FName beam1_name = GetCraneJointName(ECraneJoints::Beam1);
-		const FName beam2_name = GetCraneJointName(ECraneJoints::Beam2);
-		const FName beam4_name = GetCraneJointName(ECraneJoints::Beam4);
-		const FName neck_name(GetCraneJointName(ECraneJoints::Neck));
-		const FName head_name(GetCraneJointName(ECraneJoints::Head));
+		const FName RootBoneName(GetCraneJointName(ECraneJoints::Base));
+		const FName ColumnsBoneName(GetCraneJointName(ECraneJoints::Columns));
+		const FName BeamsBoneName(GetCraneJointName(ECraneJoints::Beams));
+		const FName GravityBoneName(GetCraneJointName(ECraneJoints::Gravity));
+		const FName Beam1BoneName(GetCraneJointName(ECraneJoints::Beam1));
+		const FName Beam2BoneName(GetCraneJointName(ECraneJoints::Beam2));
+		const FName Beam4BoneName(GetCraneJointName(ECraneJoints::Beam4));
+		const FName NeckBoneName(GetCraneJointName(ECraneJoints::Neck));
+		const FName HeadBoneName(GetCraneJointName(ECraneJoints::Head));
 
-		mComponent->SetBoneLocationByName(root_name, NewLoc, EBoneSpaces::ComponentSpace);
+		mComponent->SetBoneLocationByName(RootBoneName, NewLoc, EBoneSpaces::ComponentSpace);
 
-		FVector vHeadPos;
-		FVector vColumn, vBeams, projPos;
-		FVector vHeadRight;
-		FPlane	plane;
+		FVector HeadPos;
+		FVector ColumnPos, BeamsPos, ProjPos;
+		FVector HeadRight;
+		FPlane	Plane;
 
 		FQuat DeltaQuat;
 		FVector DeltaAxis(0.f);
 		float DeltaAngle = 0.f;
 
-		const int32 iterations = 32;
+		ColumnPos = mComponent->GetBoneLocation(ColumnsBoneName);
+		BeamsPos = mComponent->GetBoneLocation(BeamsBoneName);
 
-		for (int32 iter_id = 0; iter_id < iterations; ++iter_id)
 		{
-			vHeadPos = ComputeHeadTransform();
+			FRotator rot = mComponent->GetBoneRotationByName(ColumnsBoneName, EBoneSpaces::ComponentSpace);
 
-			vColumn = mComponent->GetBoneLocation(columns_name);
-			vBeams = mComponent->GetBoneLocation(beams_name);
+			FVector DirInPlane = vTarget3 - BeamsPos;
+			DirInPlane.Z = 0.0;
+			DirInPlane.Normalize();
 
-			plane = FPlane(vColumn, vBeams, vHeadPos);
+			double AngleRad = FMath::Atan2(FVector::DotProduct(FVector::CrossProduct(FVector::ForwardVector, DirInPlane), FVector::UpVector),
+				FVector::DotProduct(DirInPlane, FVector::ForwardVector));
+			double Angle = FMath::RadiansToDegrees(AngleRad);
 
-			vHeadRight = vBeams - 150.0f * plane.GetSafeNormal();
+			rot.Yaw = 90.0 + Angle;
+			mComponent->SetBoneRotationByName(ColumnsBoneName, rot, EBoneSpaces::ComponentSpace);
 
-			projPos = FVector::PointPlaneProject(vTarget3, vBeams, vHeadRight, vHeadPos);
+			HeadPos = FVector::ForwardVector;
+			FVector HeadDir = HeadPos.RotateAngleAxisRad(AngleRad, FVector::UpVector);
+			HeadDir.Normalize();
 
-			bool is_behind = (plane.PlaneDot(vTarget3) < 0.0f);
+			constexpr double DistCamHeadAndNeck{ 50.0 };
+			FVector DirToCam = FVector(vTarget3.X, vTarget3.Y, vTarget3.Z + DistCamHeadAndNeck) - BeamsPos;
+			DirToCam.Normalize();
 
-			// Find delta rotation between both normals.
-			DeltaQuat = FQuat::FindBetween(vHeadPos - vBeams, projPos - vBeams);
-			DeltaQuat.ToAxisAndAngle(DeltaAxis, DeltaAngle);
-			
-			if (DeltaAngle == DeltaAngle && abs(DeltaAngle) > 0.01f)
-			{
-				FRotator rot = mComponent->GetBoneRotationByName(columns_name, EBoneSpaces::ComponentSpace);
+			AngleRad = FMath::Acos(FVector::DotProduct(DirToCam, HeadDir));
+			Angle = FMath::RadiansToDegrees( ((vTarget3.Z + DistCamHeadAndNeck) > BeamsPos.Z) ? AngleRad : -AngleRad);
 
-				rot.Yaw += (is_behind) ? -DeltaAngle : DeltaAngle;
-				mComponent->SetBoneRotationByName(columns_name, rot, EBoneSpaces::ComponentSpace);
-			}
-
-			//
-			// up / down
-
-			vHeadPos = ComputeHeadTransform();
-
-			plane = FPlane(vColumn, vBeams, vHeadPos);
-			vHeadRight = vBeams - 150.0f * plane.GetSafeNormal();
-
-			plane = FPlane(vBeams, vHeadRight, vHeadPos);
-			projPos = FVector::PointPlaneProject(vTarget3, vBeams, vColumn, vHeadPos);
-
-			is_behind = (plane.PlaneDot(vTarget3) < 0.0f);
-
-			// Find delta rotation between both normals.
-			DeltaQuat = FQuat::FindBetween(vHeadPos - vBeams, projPos - vBeams);
-			DeltaQuat.ToAxisAndAngle(DeltaAxis, DeltaAngle);
-
-			if (DeltaAngle == DeltaAngle && abs(DeltaAngle) > 0.01f)
-			{
-				FRotator rot = mComponent->GetBoneRotationByName(beams_name, EBoneSpaces::ComponentSpace);
-
-				if (is_behind)
-					DeltaAngle = -DeltaAngle;
-
-				rot.Roll += DeltaAngle;
-				double angle = rot.Roll;
-
-				mComponent->SetBoneRotationByName(beams_name, rot, EBoneSpaces::ComponentSpace);
-			}
+			rot = mComponent->GetBoneRotationByName(BeamsBoneName, EBoneSpaces::ComponentSpace);
+			rot.Roll = 90.0 + Angle;
+			mComponent->SetBoneRotationByName(BeamsBoneName, rot, EBoneSpaces::ComponentSpace);
 		}
+		
+		ColumnPos = mComponent->GetBoneLocation(ColumnsBoneName);
+		BeamsPos = mComponent->GetBoneLocation(BeamsBoneName);
+		HeadPos = ComputeHeadTransform();
 
 		//
 		// rotate gravity point
-		FTransform tm, parent_tm;
+		FTransform TM, ParentTM;
 		FVector angles;
 
-		tm = mComponent->GetBoneTransformByName(beams_name, EBoneSpaces::ComponentSpace);
-		parent_tm = mComponent->GetBoneTransformByName(mComponent->GetParentBone(beams_name), EBoneSpaces::ComponentSpace);
+		TM = mComponent->GetBoneTransformByName(BeamsBoneName, EBoneSpaces::ComponentSpace);
+		ParentTM = mComponent->GetBoneTransformByName(mComponent->GetParentBone(BeamsBoneName), EBoneSpaces::ComponentSpace);
 
-		tm.SetToRelativeTransform(parent_tm);
-		angles = tm.GetRotation().Euler();
+		TM.SetToRelativeTransform(ParentTM);
+		angles = TM.GetRotation().Euler();
 
-		tm = mComponent->GetBoneTransformByName(gravity_name, EBoneSpaces::ComponentSpace);
-		parent_tm = mComponent->GetBoneTransformByName(mComponent->GetParentBone(gravity_name), EBoneSpaces::ComponentSpace);
+		TM = mComponent->GetBoneTransformByName(GravityBoneName, EBoneSpaces::ComponentSpace);
+		ParentTM = mComponent->GetBoneTransformByName(mComponent->GetParentBone(GravityBoneName), EBoneSpaces::ComponentSpace);
 
-		tm.SetToRelativeTransform(parent_tm);
-		tm.SetRotation(FQuat::MakeFromEuler(-angles));
+		TM.SetToRelativeTransform(ParentTM);
+		TM.SetRotation(FQuat::MakeFromEuler(-angles));
 
-		tm = tm * parent_tm;
-		mComponent->SetBoneTransformByName(gravity_name, tm, EBoneSpaces::ComponentSpace);
+		TM = TM * ParentTM;
+		mComponent->SetBoneTransformByName(GravityBoneName, TM, EBoneSpaces::ComponentSpace);
 
 		//
 		// beams length
 		
-		vHeadPos = ComputeHeadTransform();
+		HeadPos = ComputeHeadTransform();
 
-		DeltaQuat = FQuat::FindBetween(vHeadPos - vBeams, projPos - vBeams);
+		DeltaQuat = FQuat::FindBetween(HeadPos - BeamsPos, ProjPos - BeamsPos);
 		DeltaQuat.ToAxisAndAngle(DeltaAxis, DeltaAngle);
 
 		if (DeltaAngle < 60.0f)
 		{
-			const float l1 = (vHeadPos - vBeams).Size();
-			const float l2 = (vTarget3 - vBeams).Size();
+			const float l1 = (HeadPos - BeamsPos).Size();
+			const float l2 = (vTarget3 - BeamsPos).Size();
 			const float l = 0.15f * (l1 - l2);
 
 			if (abs(l) > 0.1f)
 			{
-				parent_tm = mComponent->GetBoneTransformByName(beam1_name, EBoneSpaces::ComponentSpace);
+				ParentTM = mComponent->GetBoneTransformByName(Beam1BoneName, EBoneSpaces::ComponentSpace);
 
 				const int32 beam2 = static_cast<int32>(ECraneJoints::Beam2);
 				const int32 beam4 = static_cast<int32>(ECraneJoints::Beam4);
@@ -220,21 +196,21 @@ public:
 					if (INDEX_NONE == mComponent->GetBoneIndex(bone_name))
 						continue;
 
-					tm = mComponent->GetBoneTransformByName(bone_name, EBoneSpaces::ComponentSpace);
-					tm.SetToRelativeTransform(parent_tm);
+					TM = mComponent->GetBoneTransformByName(bone_name, EBoneSpaces::ComponentSpace);
+					TM.SetToRelativeTransform(ParentTM);
 						
-					FVector tr = tm.GetLocation();
+					FVector tr = TM.GetLocation();
 					tr.Z += l;
 
 					if (tr.Z > -50.0f) tr.Z = -50.0f;
 					else if (tr.Z < -400.0f) tr.Z = -400.0f;
 
-					tm.SetLocation(tr);
-					tm = tm * parent_tm;
+					TM.SetLocation(tr);
+					TM = TM * ParentTM;
 						
-					mComponent->SetBoneTransformByName(bone_name, tm, EBoneSpaces::ComponentSpace);
+					mComponent->SetBoneTransformByName(bone_name, TM, EBoneSpaces::ComponentSpace);
 
-					parent_tm = tm;	
+					ParentTM = TM;	
 				}
 			}
 		}
@@ -242,26 +218,26 @@ public:
 		//
 		// crane head and neck
 
-		tm = mComponent->GetBoneTransformByName(neck_name, EBoneSpaces::ComponentSpace);
-		parent_tm = mComponent->GetBoneTransformByName(mComponent->GetParentBone(neck_name), EBoneSpaces::ComponentSpace);
+		TM = mComponent->GetBoneTransformByName(NeckBoneName, EBoneSpaces::ComponentSpace);
+		ParentTM = mComponent->GetBoneTransformByName(mComponent->GetParentBone(NeckBoneName), EBoneSpaces::ComponentSpace);
 
-		tm.SetToRelativeTransform(parent_tm);
+		TM.SetToRelativeTransform(ParentTM);
 		
-		tm = tm * parent_tm;
-		tm.SetRotation(neck_rotation);
+		TM = TM * ParentTM;
+		TM.SetRotation(NeckRotation);
 
-		mComponent->SetBoneTransformByName(neck_name, tm, EBoneSpaces::ComponentSpace);
+		mComponent->SetBoneTransformByName(NeckBoneName, TM, EBoneSpaces::ComponentSpace);
 
 		//
 
-		tm = mComponent->GetBoneTransformByName(head_name, EBoneSpaces::ComponentSpace);
-		parent_tm = mComponent->GetBoneTransformByName(mComponent->GetParentBone(head_name), EBoneSpaces::ComponentSpace);
+		TM = mComponent->GetBoneTransformByName(HeadBoneName, EBoneSpaces::ComponentSpace);
+		ParentTM = mComponent->GetBoneTransformByName(mComponent->GetParentBone(HeadBoneName), EBoneSpaces::ComponentSpace);
 
-		tm.SetToRelativeTransform(parent_tm);
-		tm.SetRotation(FQuat::MakeFromEuler(FVector(raw_rotation.Y, 0.0f, 0.0f)));
+		TM.SetToRelativeTransform(ParentTM);
+		TM.SetRotation(FQuat::MakeFromEuler(FVector(RawRotation.Y, 0.0f, 0.0f)));
 
-		tm = tm * parent_tm;
-		mComponent->SetBoneTransformByName(head_name, tm, EBoneSpaces::ComponentSpace);
+		TM = TM * ParentTM;
+		mComponent->SetBoneTransformByName(HeadBoneName, TM, EBoneSpaces::ComponentSpace);
 
 		return true;
 	}
@@ -369,9 +345,7 @@ bool ATechnocraneRig::PreloadPreviewMeshes()
 
 void ATechnocraneRig::UpdatePreviewMeshes()
 {
-	if (!TargetComponent.OtherActor.IsValid())
-		return;
-
+	
 	if (PreviewMeshes.Num() > 0 && MeshComponent)
 	{
 		if (LastPreviewModel != CraneModel)
@@ -395,13 +369,14 @@ void ATechnocraneRig::UpdatePreviewMeshes()
 		FTransform Target = FTransform::Identity;
 		Target.SetLocation(FVector(0.0f, 0.0f, 100.0f));
 		FVector RawRotation = FVector::ZeroVector;
+		FQuat NeckQ(FQuat::Identity);
 
 		if (ACineCameraActor* CineCamera = Cast<ACineCameraActor>(TargetComponent.OtherActor))
 		{
 			// get transform and track position / raw rotation if live link is presented
 
 			FTransform CameraTransform = CineCamera->GetTransform();
-
+			
 			if (UCineCameraComponent* comp = Cast<UCineCameraComponent>(CineCamera->GetCameraComponent()))
 			{
 				CameraTransform = comp->GetRelativeTransform() * CameraTransform;
@@ -417,6 +392,23 @@ void ATechnocraneRig::UpdatePreviewMeshes()
 
 			Target = NewPivotOffset * CameraTransform;
 			RawRotation = CineCamera->GetActorRotation().Euler();
+			NeckQ = FQuat::MakeFromEuler(FVector(90.0, 0.0, 180.0 + RawRotation.X));
+
+			if (!CameraPivotOffset.IsNearlyZero(0.0001))
+			{
+				FVector DirToCam = (CameraTransform.GetLocation() - Target.GetLocation());
+				DirToCam.Normalize();
+				FVector DirInPlane = DirToCam;
+				DirInPlane.Z = 0.0;
+				DirInPlane.Normalize();
+				
+				double AngleRad = FMath::Atan2(FVector::DotProduct(FVector::CrossProduct(FVector::ForwardVector, DirInPlane), FVector::UpVector),
+					FVector::DotProduct(DirInPlane, FVector::ForwardVector));
+
+				const double Angle = FMath::RadiansToDegrees( AngleRad );
+
+				NeckQ = FQuat::MakeFromEuler(FVector(90.0, 0.0, 90.0 + Angle));
+			}
 
 			// track position / raw rotation
 
@@ -449,14 +441,17 @@ void ATechnocraneRig::UpdatePreviewMeshes()
 									FrameData->PropertyValues[static_cast<int32>(EPacketProperties::Tilt)],
 									FrameData->PropertyValues[static_cast<int32>(EPacketProperties::Roll)]
 								);
+
+								NeckQ = FQuat::MakeFromEuler(FVector(90.0f, 0.0f, 180.0f + RawRotation.X));
 							}
 						}
 					}
 				}
 			}
+			
 		}
 		// TODO: recalculate the way how neck is rotated in non live mode !
-		const FQuat NeckQ = FQuat::MakeFromEuler(FVector(90.0f, 0.0f, 180.0f + RawRotation.X));
+		
 		TechnocraneRig.Impl->Compute(GetWorld(), Target.GetLocation(), TrackPosition, RawRotation, NeckQ);
 	}
 }
