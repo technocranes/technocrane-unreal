@@ -43,13 +43,10 @@ public:
 
 	//! a constructor
 	FTechnocraneRigImpl()
-	{
-		mComponent = nullptr;
-		mCraneData = nullptr;
-	}
+	{}
 
-	UPoseableMeshComponent*		mComponent;
-	FCraneData*					mCraneData;
+	UPoseableMeshComponent* mComponent{ nullptr };
+	FCraneData* mCraneData{ nullptr };
 	
 	void SetPoseableMeshComponent(UPoseableMeshComponent* component)
 	{
@@ -186,29 +183,31 @@ public:
 			{
 				ParentTM = mComponent->GetBoneTransformByName(Beam1BoneName, EBoneSpaces::ComponentSpace);
 
-				const int32 beam2 = static_cast<int32>(ECraneJoints::Beam2);
-				const int32 beam4 = static_cast<int32>(ECraneJoints::Beam4);
+				const int32 Beam2 = static_cast<int32>(ECraneJoints::Beam2);
+				const int32 Beam4 = static_cast<int32>(ECraneJoints::Beam4);
 
-				for (int32 i = beam2; i <= beam4; ++i)
+				for (int32 i = Beam2; i <= Beam4; ++i)
 				{
-					const FName bone_name(GetCraneJointName(static_cast<ECraneJoints>(i)));
+					const FName BoneName(GetCraneJointName(static_cast<ECraneJoints>(i)));
 					
-					if (INDEX_NONE == mComponent->GetBoneIndex(bone_name))
+					if (INDEX_NONE == mComponent->GetBoneIndex(BoneName))
 						continue;
 
-					TM = mComponent->GetBoneTransformByName(bone_name, EBoneSpaces::ComponentSpace);
+					TM = mComponent->GetBoneTransformByName(BoneName, EBoneSpaces::ComponentSpace);
 					TM.SetToRelativeTransform(ParentTM);
 						
 					FVector tr = TM.GetLocation();
 					tr.Z += l;
 
-					if (tr.Z > -50.0f) tr.Z = -50.0f;
-					else if (tr.Z < -400.0f) tr.Z = -400.0f;
+					const float MaxLength = mComponent->GetRefPoseTransform(mComponent->GetBoneIndex(BoneName)).GetLocation().Z;
+
+					if (tr.Z > -2.0f) tr.Z = -2.0f;
+					else if (tr.Z < MaxLength) tr.Z = MaxLength;
 
 					TM.SetLocation(tr);
 					TM = TM * ParentTM;
 						
-					mComponent->SetBoneTransformByName(bone_name, TM, EBoneSpaces::ComponentSpace);
+					mComponent->SetBoneTransformByName(BoneName, TM, EBoneSpaces::ComponentSpace);
 
 					ParentTM = TM;	
 				}
@@ -260,9 +259,11 @@ TUniquePtr<FTechnocraneRigImpl> FTechnocraneRig::CreateImpl()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Sets default values
 ATechnocraneRig::ATechnocraneRig()
+	: LastPreviewModel(ECranePreviewModelsEnum::ECranePreview_Count)
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.TickInterval = 0;
 
 	// default control values
 	TrackPosition = 0.0f;
@@ -274,8 +275,6 @@ ATechnocraneRig::ATechnocraneRig()
 	TransformComponent = CreateDefaultSubobject<USceneComponent>(TEXT("TransformComponent"));
 	RootComponent = TransformComponent;
 
-	LastPreviewModel = ECranePreviewModelsEnum::ECranePreview_Count;
-	
 #if WITH_EDITORONLY_DATA
 
 	MeshComponent = nullptr;
@@ -450,7 +449,6 @@ void ATechnocraneRig::UpdatePreviewMeshes()
 			}
 			
 		}
-		// TODO: recalculate the way how neck is rotated in non live mode !
 		
 		TechnocraneRig.Impl->Compute(GetWorld(), Target.GetLocation(), TrackPosition, RawRotation, NeckQ);
 	}
@@ -459,7 +457,6 @@ void ATechnocraneRig::UpdatePreviewMeshes()
 
 void ATechnocraneRig::UpdateCraneComponents()
 {
-
 #if WITH_EDITORONLY_DATA
 	UpdatePreviewMeshes();
 #endif
