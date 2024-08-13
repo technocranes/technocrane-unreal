@@ -92,9 +92,9 @@ public:
 UENUM(BlueprintType)
 enum class ECranePreviewModelsEnum : uint8
 {
-	ECranePreview_Technodolly = 0		UMETA(DisplayName = "Technodolly"),
+	ECranePreview_Technodolly25 = 0		UMETA(DisplayName = "Technodolly 25"),
 	ECranePreview_Supertechno50 = 1		UMETA(DisplayName = "SuperTechno 50 Plus"),
-	ECranePreview_Technodolly25 = 2		UMETA(DisplayName = "Technodolly 25"),
+	ECranePreview_Technocrane22 = 2		UMETA(DisplayName = "Technocrane 22"),
 	ECranePreview_Count					UMETA(Hidden)
 };
 
@@ -136,7 +136,7 @@ public:
 
 	/** Defines how to begin (either at zero, or at a randomized value. */
 	UPROPERTY(EditAnywhere, Category = "Crane Controls")
-	ECranePreviewModelsEnum			CraneModel{ ECranePreviewModelsEnum::ECranePreview_Technodolly };
+	ECranePreviewModelsEnum			CraneModel{ ECranePreviewModelsEnum::ECranePreview_Technodolly25 };
 
 	/** Controls the pitch of the crane arm. */
 	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = "Crane Controls", meta = (Units = cm))
