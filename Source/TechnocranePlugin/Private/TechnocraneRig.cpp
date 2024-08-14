@@ -405,7 +405,7 @@ void ATechnocraneRig::UpdatePreviewMeshes()
 
 			if (CraneTracksMeshComponent)
 			{
-				CraneTracksMeshComponent->AddLocalOffset(FVector(0.0f, 0.0f, LastTracksOffset));
+				CraneTracksMeshComponent->SetRelativeLocation(FVector(0.0f, 0.0f, LastTracksOffset));
 			}
 		}
 
