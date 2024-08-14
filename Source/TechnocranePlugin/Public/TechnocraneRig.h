@@ -138,9 +138,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Crane Controls")
 	ECranePreviewModelsEnum			CraneModel{ ECranePreviewModelsEnum::ECranePreview_Technodolly25 };
 
-	/** Controls the pitch of the crane arm. */
+	/** Crane position on tracks, reads from Camera Component or from Live Data */
 	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = "Crane Controls", meta = (Units = cm))
 	float TrackPosition{ 0.0f };
+
+	/** Controls if we would like to show a preview of tracks (only when crane supports tracks preview) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crane Controls")
+	bool bShowTracksIfSupported{ true };
 
 	/** Controls the amount of rails for the crane rig. */
 	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = "Crane Controls", meta = (ClampMin = 0, ClampMax = 6))
@@ -155,12 +159,13 @@ public:
 	virtual void PostEditUndo() override;
 	virtual void EditorApplyTranslation(const FVector& DeltaTranslation, bool bAltDown, bool bShiftDown, bool bCtrlDown) override;
 #endif
-	//virtual class USceneComponent* GetDefaultAttachComponent() const override;
-
+	
 private:
 #if WITH_EDITORONLY_DATA
 	bool PreloadPreviewMeshes();
 	void UpdatePreviewMeshes();
+	bool PreloadTracksMesh();
+	void UpdateTracksMesh();
 #endif
 	void UpdateCraneComponents();
 
@@ -170,16 +175,24 @@ private:
 
 	/** Camera component to use as a crane target. */
 	UPROPERTY(EditAnywhere, Category = "Crane Components")
-		FComponentReference		TargetComponent;
+	FComponentReference		TargetComponent;
 
 #if WITH_EDITORONLY_DATA
 	/** Preview meshes for visualization */
 	UPROPERTY()
-		TArray<USkeletalMesh*> PreviewMeshes;
+	TArray<USkeletalMesh*> PreviewMeshes;
 	
 	UPROPERTY()
 	UPoseableMeshComponent* MeshComponent{ nullptr };
 	
+	/** Preview mesh of crane tracks */
+	UPROPERTY()
+	UStaticMesh* CraneTracksMesh{ nullptr };
+
+	/** mesh component for tracks */
+	UPROPERTY()
+	UStaticMeshComponent* CraneTracksMeshComponent{ nullptr };
+
 	/** Data table with crane presets, the asset is part of technocrane plugin content */
 	UPROPERTY()
 	UDataTable* CranesData{ nullptr };
@@ -188,6 +201,6 @@ private:
 private:
 	FTechnocraneRig				TechnocraneRig;
 	ECranePreviewModelsEnum		LastPreviewModel;
-
-	bool					mIsNeckRotationSetted{ false };
+	bool						bLastSupportTracks{ false };
+	float						LastTracksOffset{ 0.0f };
 };

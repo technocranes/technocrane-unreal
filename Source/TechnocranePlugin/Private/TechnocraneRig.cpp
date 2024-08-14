@@ -288,6 +288,7 @@ ATechnocraneRig::ATechnocraneRig()
 		{
 			CranesData = CraneDataAsset.Object;
 			PreloadPreviewMeshes();
+			PreloadTracksMesh();
 		}
 		else
 		{
@@ -342,6 +343,45 @@ bool ATechnocraneRig::PreloadPreviewMeshes()
 	return (PreviewMeshes.Num() > 0);
 }
 
+bool ATechnocraneRig::PreloadTracksMesh()
+{
+	const FString ModelPath("/TechnocranePlugin/tracks");
+
+	ConstructorHelpers::FObjectFinder<UStaticMesh> CraneTracksBaseMesh(*ModelPath);
+
+	if (CraneTracksBaseMesh.Succeeded())
+	{
+		CraneTracksMesh = CraneTracksBaseMesh.Object;
+		CraneTracksMeshComponent = CreateOptionalDefaultSubobject<UStaticMeshComponent>(TEXT("tracks_mesh"));
+
+		if (CraneTracksMeshComponent)
+		{
+			CraneTracksMeshComponent->bIsEditorOnly = true;
+			CraneTracksMeshComponent->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
+			CraneTracksMeshComponent->bHiddenInGame = false;
+			CraneTracksMeshComponent->CastShadow = true;
+			CraneTracksMeshComponent->SetupAttachment(TransformComponent);		// sibling of yawcontrol
+
+			CraneTracksMeshComponent->SetStaticMesh(CraneTracksMesh);
+			return true;
+		}
+	}
+	return false;
+}
+
+void ATechnocraneRig::UpdateTracksMesh()
+{
+	if (!CraneTracksMeshComponent)
+		return;
+
+	bool bShowTracks = bLastSupportTracks && bShowTracksIfSupported;
+
+	if (CraneTracksMeshComponent->IsVisible() != bShowTracks)
+	{
+		CraneTracksMeshComponent->SetVisibility(bShowTracks);
+	}
+}
+
 void ATechnocraneRig::UpdatePreviewMeshes()
 {
 	
@@ -349,7 +389,6 @@ void ATechnocraneRig::UpdatePreviewMeshes()
 	{
 		if (LastPreviewModel != CraneModel)
 		{
-			
 			// attach another crane
 			USkeletalMesh* PreviewMesh = PreviewMeshes[static_cast<int32>(CraneModel)];
 			
@@ -361,6 +400,13 @@ void ATechnocraneRig::UpdatePreviewMeshes()
 			MeshComponent->SetSkinnedAssetAndUpdate(PreviewMesh);
 			
 			LastPreviewModel = CraneModel;
+			bLastSupportTracks = Data->TracksSupport > 0;
+			LastTracksOffset = Data->ZOffsetOnTracks;
+
+			if (CraneTracksMeshComponent)
+			{
+				CraneTracksMeshComponent->AddLocalOffset(FVector(0.0f, 0.0f, LastTracksOffset));
+			}
 		}
 
 		// Perform kinematic updates
@@ -459,6 +505,7 @@ void ATechnocraneRig::UpdateCraneComponents()
 {
 #if WITH_EDITORONLY_DATA
 	UpdatePreviewMeshes();
+	UpdateTracksMesh();
 #endif
 }
 
@@ -472,8 +519,6 @@ void ATechnocraneRig::BeginPlay()
 // Called every frame
 void ATechnocraneRig::Tick(float DeltaTime)
 {
-	mIsNeckRotationSetted = false;
-
 	Super::Tick(DeltaTime);
 
 	// feed exposed API into underlying components
