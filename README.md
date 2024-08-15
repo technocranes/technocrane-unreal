@@ -6,6 +6,16 @@
 
 [<img src="https://discord.com/assets/ff41b628a47ef3141164bfedb04fb220.png" width=10% height=10%>](https://discord.gg/qw7QxSR)
 
+# Technocrane Trimmer
+
+Technocrane trimmer is a service that converts raw stream information (*.cgi) into fbx files. Its main feature is the ability to export a defined range of time to fbx. This allows for the splitting of large daily streams into smaller fbx files, which can be imported into DCC applications like Maya, MotionBuilder, and Unreal Engine for further processing. The service can be particularly helpful for importing camera animations longer than 2 minutes into Unreal Engine, which can be a challenge without splitting the animation into smaller parts.
+
+[Technocrane Trimmer](https://technocranes.github.io/)
+
+[Introduction Video To Technocrane Trimmer](https://youtu.be/JjMQ8ErkjWE)
+
+The UE Plugin has a special camera actor - TechnocraneCamera, derived from cinematic camera. The main feature is in its camera component which contains variables of zoom, iris, focus, track position, time code in order to be seamlessly imported from a trimmer fbx into UE Sequencer clip.
+
 # How to Install Manually
 
   Create a "Plugins" directory in the project root (near the "Content" directory) and create there sub-folder "TechnocranePlugin". Put the repository folders into the "TechnocranePlugin" folder. (e.g. "/MyProject/Plugins/TechnocranePlugin")
