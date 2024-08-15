@@ -14,6 +14,8 @@ Technocrane trimmer is a service that converts raw stream information (*.cgi) in
 
 [Introduction Video To Technocrane Trimmer](https://youtu.be/JjMQ8ErkjWE)
 
+[Import fbx into Sequencer](https://youtu.be/vHJZ4-C5B0s)
+
 The UE Plugin has a special camera actor - TechnocraneCamera, derived from cinematic camera. The main feature is in its camera component which contains variables of zoom, iris, focus, track position, time code in order to be seamlessly imported from a trimmer fbx into UE Sequencer clip.
 
 # How to Install Manually
