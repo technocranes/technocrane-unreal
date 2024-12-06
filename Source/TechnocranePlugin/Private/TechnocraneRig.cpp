@@ -101,9 +101,7 @@ public:
 
 		FVector HeadPos;
 		FVector ColumnPos, BeamsPos, ProjPos;
-		FVector HeadRight;
-		FPlane	Plane;
-
+		
 		FQuat DeltaQuat;
 		FVector DeltaAxis(0.f);
 		float DeltaAngle = 0.f;
