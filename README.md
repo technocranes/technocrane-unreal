@@ -20,9 +20,12 @@ The UE Plugin has a special camera actor - TechnocraneCamera, derived from cinem
 
 # How to Install Manually
 
-  Create a "Plugins" directory in the project root (near the "Content" directory) and create there sub-folder "TechnocranePlugin". Put the repository folders into the "TechnocranePlugin" folder. (e.g. "/MyProject/Plugins/TechnocranePlugin")
-
-  If you don't have development environment to compile the plugin, you can download precompiled binaries from a release section of the repository.
+ * Create a "Plugins" directory in the project root (near the "Content" directory)
+ * Create there sub-folder "TechnocranePlugin".
+ * Put the repository folders into the "TechnocranePlugin" folder. (e.g. "/MyProject/Plugins/TechnocranePlugin")
+ * For binaries you can build the plugin together with the project in case you have a c++ based project and Visual Studio
+ * If you don't have development environment to compile the plugin, you can download precompiled binaries from a release section of the repository.
+ * In case of downloaded binaries, put them into <Project>/Plugins/TechnocranePlugin/Binaries/Win64 
 
   In Unreal Editor first of all you should activate Live Link plugin if you don't have that done yet.
   [![Step1](https://github.com/technocranes/technocrane-unreal/blob/master/Images/setup_1.jpg)]()
