@@ -46,7 +46,7 @@ public:
 	{}
 
 	UPoseableMeshComponent* mComponent{ nullptr };
-	FCraneData* mCraneData{ nullptr };
+	FCraneData* CraneData{ nullptr };
 	
 	void SetPoseableMeshComponent(UPoseableMeshComponent* component)
 	{
@@ -55,7 +55,7 @@ public:
 
 	void SetCranePresetData(FCraneData*	data)
 	{
-		mCraneData = data;
+		CraneData = data;
 	}
 
 	FVector ComputeHeadTransform() const
@@ -74,14 +74,14 @@ public:
 	// recompute transform of crane elements in order to fit a target camera position and orientation
 	bool Compute(UWorld* World, const FVector& Target, const float TrackPosition, const FVector& RawRotation, const FQuat& NeckRotation)
 	{
-		if (!mCraneData)
+		if (!CraneData)
 		{
 			return false;
 		}
 
 		const FTransform& BaseTransform = mComponent->GetComponentTransform();
 
-		const float ZOffset = mCraneData->ZOffsetOnGround;		// make it appear in the right place
+		const float ZOffset = CraneData->ZOffsetOnGround;		// make it appear in the right place
 		FVector const NewLoc(0.0f, TrackPosition, ZOffset);
 		
 		const FTransform RelativeTM = BaseTransform.GetRelativeTransformReverse(FTransform(Target));
@@ -89,6 +89,7 @@ public:
 
 		const FName RootBoneName(GetCraneJointName(ECraneJoints::Base));
 		const FName ColumnsBoneName(GetCraneJointName(ECraneJoints::Columns));
+		const FName ColumnRotationBoneName(!CraneData->ColumnRotationBone.IsNone() ? CraneData->ColumnRotationBone : ColumnsBoneName);
 		const FName BeamsBoneName(GetCraneJointName(ECraneJoints::Beams));
 		const FName GravityBoneName(GetCraneJointName(ECraneJoints::Gravity));
 		const FName Beam1BoneName(GetCraneJointName(ECraneJoints::Beam1));
@@ -110,7 +111,7 @@ public:
 		BeamsPos = mComponent->GetBoneLocation(BeamsBoneName);
 
 		{
-			FRotator rot = mComponent->GetBoneRotationByName(ColumnsBoneName, EBoneSpaces::ComponentSpace);
+			FRotator rot = mComponent->GetBoneRotationByName(ColumnRotationBoneName, EBoneSpaces::ComponentSpace);
 
 			FVector DirInPlane = vTarget3 - BeamsPos;
 			DirInPlane.Z = 0.0;
@@ -121,7 +122,7 @@ public:
 			double Angle = FMath::RadiansToDegrees(AngleRad);
 
 			rot.Yaw = 90.0 + Angle;
-			mComponent->SetBoneRotationByName(ColumnsBoneName, rot, EBoneSpaces::ComponentSpace);
+			mComponent->SetBoneRotationByName(ColumnRotationBoneName, rot, EBoneSpaces::ComponentSpace);
 
 			HeadPos = FVector::ForwardVector;
 			FVector HeadDir = HeadPos.RotateAngleAxisRad(AngleRad, FVector::UpVector);
@@ -182,9 +183,9 @@ public:
 				ParentTM = mComponent->GetBoneTransformByName(Beam1BoneName, EBoneSpaces::ComponentSpace);
 
 				const int32 Beam2 = static_cast<int32>(ECraneJoints::Beam2);
-				const int32 Beam4 = static_cast<int32>(ECraneJoints::Beam4);
+				const int32 Beam5 = static_cast<int32>(ECraneJoints::Beam5);
 
-				for (int32 i = Beam2; i <= Beam4; ++i)
+				for (int32 i = Beam2; i <= Beam5; ++i)
 				{
 					const FName BoneName(GetCraneJointName(static_cast<ECraneJoints>(i)));
 					

@@ -11,7 +11,7 @@
 #include "UObject/ObjectMacros.h"
 
 #define TECHNOCRANE_MAX_COLUMNS_COUNT	3
-#define TECHNOCRANE_MAX_BEAMS_COUNT		4
+#define TECHNOCRANE_MAX_BEAMS_COUNT		5
 
 UENUM( BlueprintType )
 enum class ECraneJoints : uint8
@@ -26,6 +26,7 @@ enum class ECraneJoints : uint8
 	Beam2,
 	Beam3,
 	Beam4,
+	Beam5,
 	Gravity,
 	Neck,
 	Head,

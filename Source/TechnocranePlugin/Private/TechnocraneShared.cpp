@@ -20,6 +20,7 @@ const char* g_CraneJointNames[static_cast<int32>(ECraneJoints::JointCount)] = {
 	"jointBeam2",
 	"jointBeam3",
 	"jointBeam4",
+	"jointBeam5",
 	"jointGravity",
 	"jointNeck",
 	"jointHead",

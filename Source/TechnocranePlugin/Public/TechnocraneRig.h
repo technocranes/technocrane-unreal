@@ -63,6 +63,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
 		int32 ColumnCount;
 
+	/** use a specific bone to peform a horizontal rotation (column around up axis) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+		FName ColumnRotationBone;
+
 	/** Minimum angle to tilt */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Limits)
 		float TiltMin;
@@ -92,9 +96,15 @@ public:
 UENUM(BlueprintType)
 enum class ECranePreviewModelsEnum : uint8
 {
-	ECranePreview_Technodolly25 = 0		UMETA(DisplayName = "Technodolly 25"),
-	ECranePreview_Supertechno50 = 1		UMETA(DisplayName = "SuperTechno 50 Plus"),
-	ECranePreview_Technocrane22 = 2		UMETA(DisplayName = "Technocrane 22"),
+	ECranePreview_Technodolly10 = 0		UMETA(DisplayName = "Technodolly 10"),
+	ECranePreview_Technodolly15 = 1		UMETA(DisplayName = "Technodolly 15"),
+	ECranePreview_Technodolly25 = 2		UMETA(DisplayName = "Technodolly 25"),
+	ECranePreview_Technocrane10 = 3		UMETA(DisplayName = "Technocrane 10"),
+	ECranePreview_Technocrane22 = 4		UMETA(DisplayName = "Technocrane 22"),
+	ECranePreview_Supertechno15 = 5		UMETA(DisplayName = "SuperTechno 15"),
+	ECranePreview_Supertechno30 = 6		UMETA(DisplayName = "SuperTechno 30 Plus"),
+	ECranePreview_Supertechno50 = 7		UMETA(DisplayName = "SuperTechno 50 Plus"),
+	ECranePreview_Supertechno75 = 8		UMETA(DisplayName = "SuperTechno 75 Plus"),
 	ECranePreview_Count					UMETA(Hidden)
 };
 
