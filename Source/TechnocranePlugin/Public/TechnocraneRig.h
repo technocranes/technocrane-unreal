@@ -15,6 +15,25 @@
 class USkeletalMeshComponent;
 class UPoseableMeshComponent;
 
+/** Calculated values from simulation */
+USTRUCT(BlueprintType)
+struct FCraneSimulationData
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Height from the ground to camera in cm */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Output", meta = (Units = cm))
+	float GroundHeight{ 0.0f };
+
+	/** the angle for beans being tilted up or down, in degrees */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Output", meta = (Units = degrees))
+	float TiltAngle{ 0.0f };
+
+	/** the current length of beans, in cm */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Output", meta = (Units = cm))
+	float ExtensionLength{ 0.0f };
+};
+
 /** Structure that defines a level up table entry */
 USTRUCT(BlueprintType)
 struct FCraneData : public FTableRowBase
@@ -169,7 +188,13 @@ public:
 	virtual void PostEditUndo() override;
 	virtual void EditorApplyTranslation(const FVector& DeltaTranslation, bool bAltDown, bool bShiftDown, bool bCtrlDown) override;
 #endif
-	
+
+public:
+
+	/** some calculated output from a crane simulation */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Output", meta = (Units = cm))
+	FCraneSimulationData	SimulationData;
+
 private:
 #if WITH_EDITORONLY_DATA
 	bool PreloadPreviewMeshes();

@@ -33,7 +33,6 @@
 
 #define LOCTEXT_NAMESPACE "TechnocraneCamera"
 
-
 ///////////////////////////////////////////////////////////////////////////////////
 // FTechnocraneRigImpl
 
@@ -58,7 +57,7 @@ public:
 		CraneData = data;
 	}
 
-	FVector ComputeHeadTransform() const
+	FVector ComputeHeadWorldTransform() const
 	{
 		const FName BoneName = GetCraneJointName(ECraneJoints::Head);
 		return mComponent->GetBoneLocation(BoneName, EBoneSpaces::WorldSpace);
@@ -71,21 +70,128 @@ public:
 		return true;
 	}
 
+	// Beam structure to hold individual beam properties
+	struct FBeamData
+	{
+		float CurrentLength;
+		float MinLength;        // Absolute minimum length the beam can have
+		float MaxLength;        // Absolute maximum length the beam can have
+		float Adjustment;       // Output: how much to adjust this beam (+/- value)
+		FName BeamBoneName;
+
+		FBeamData(float Current, float Min, float Max, const FName& BoneName)
+			: CurrentLength(Current), MinLength(Min), MaxLength(Max), Adjustment(0.0f), BeamBoneName(BoneName) {}
+
+		float GetAdjustedLength() const { return CurrentLength + Adjustment; }
+
+		// How much we can extend this beam (positive value)
+		float GetMaxPossibleExtension() const { return MaxLength - CurrentLength; }
+
+		// How much we can shrink this beam (negative value)  
+		float GetMaxPossibleShrinkage() const { return MinLength - CurrentLength; }
+
+		// Total adjustment range available for this beam
+		float GetTotalAdjustmentRange() const { return MaxLength - MinLength; }
+	};
+
+	// Alternative algorithm: Equal distribution with overflow handling
+	void CalculateBeamAdjustmentsEqual(TArray<FBeamData, TInlineAllocator<4>>& Beams, float CurrentTotalLength, float TargetLength, float BaseBeamLength)
+	{
+		if (Beams.IsEmpty())
+			return;
+
+		const float RequiredAdjustment = TargetLength - BaseBeamLength;
+		const float AdjustmentPerBeam = RequiredAdjustment / Beams.Num();
+		float RemainingAdjustment = RequiredAdjustment;
+
+		// Reset all adjustments
+		for (FBeamData& Beam : Beams)
+		{
+			Beam.Adjustment = 0.0f;
+		}
+
+		if (FMath::IsNearlyZero(RequiredAdjustment))
+		{
+			return; // Already at target, no adjustments needed
+		}
+
+		// First pass: try to distribute equally
+		for (FBeamData& Beam : Beams)
+		{
+			const float ClampedAdjustment = FMath::Clamp(AdjustmentPerBeam, Beam.MinLength, Beam.MaxLength);
+
+			Beam.Adjustment = ClampedAdjustment;
+			RemainingAdjustment -= ClampedAdjustment;
+		}
+
+		constexpr float Thres{ 0.001f };
+
+		// Second pass: distribute remaining adjustment to beams that can still accommodate it
+		while (!FMath::IsNearlyZero(RemainingAdjustment) && FMath::Abs(RemainingAdjustment) > Thres)
+		{
+			int32 AvailableBeams = 0;
+
+			// Count beams that can still be adjusted
+			for (int32 i = 0; i < Beams.Num(); i++)
+			{
+				FBeamData& Beam = Beams[i];
+				if (RemainingAdjustment > 0.0f && Beam.GetAdjustedLength() < Beam.MaxLength - Thres)
+				{
+					AvailableBeams++;
+				}
+				else if (RemainingAdjustment < 0.0f && Beam.GetAdjustedLength() > Beam.MinLength + Thres)
+				{
+					AvailableBeams++;
+				}
+			}
+
+			if (AvailableBeams == 0) break;
+
+			float AdjustmentPerAvailableBeam = RemainingAdjustment / AvailableBeams;
+			float OldRemainingAdjustment = RemainingAdjustment;
+
+			for (int32 i = 0; i < Beams.Num(); i++)
+			{
+				FBeamData& Beam = Beams[i];
+				bool CanAdjust = false;
+
+				if (RemainingAdjustment > 0.0f 
+					&& (Beam.GetAdjustedLength() < Beam.MaxLength - Thres || Beam.GetAdjustedLength() > Beam.MinLength + Thres))
+				{
+					CanAdjust = true;
+				}
+				
+				if (CanAdjust)
+				{
+					const float AdditionalAdjustment = FMath::Clamp(AdjustmentPerAvailableBeam, Beam.MinLength, Beam.MaxLength);
+
+					Beam.Adjustment += AdditionalAdjustment;
+					RemainingAdjustment -= AdditionalAdjustment;
+				}
+			}
+
+			// Prevent infinite loop
+			if (FMath::Abs(RemainingAdjustment - OldRemainingAdjustment) < 0.001f)
+			{
+				break;
+			}
+		}
+	}
+
 	// recompute transform of crane elements in order to fit a target camera position and orientation
-	bool Compute(UWorld* World, const FVector& Target, const float TrackPosition, const FVector& RawRotation, const FQuat& NeckRotation)
+	bool Compute(UWorld* World, FCraneSimulationData& OutCraneData, const FVector& Target, const float TrackPosition, const FVector& RawRotation, const FQuat& NeckRotation)
 	{
 		if (!CraneData)
 		{
 			return false;
 		}
 
-		const FTransform& BaseTransform = mComponent->GetComponentTransform();
-
 		const float ZOffset = CraneData->ZOffsetOnGround;		// make it appear in the right place
 		FVector const NewLoc(0.0f, TrackPosition, ZOffset);
 		
-		const FTransform RelativeTM = BaseTransform.GetRelativeTransformReverse(FTransform(Target));
-		FVector vTarget3 = Target; // relativeTM.GetLocation();
+		OutCraneData.GroundHeight = Target.Z;
+
+		FVector vTarget3 = Target;
 
 		const FName RootBoneName(GetCraneJointName(ECraneJoints::Base));
 		const FName ColumnsBoneName(GetCraneJointName(ECraneJoints::Columns));
@@ -93,56 +199,65 @@ public:
 		const FName BeamsBoneName(GetCraneJointName(ECraneJoints::Beams));
 		const FName GravityBoneName(GetCraneJointName(ECraneJoints::Gravity));
 		const FName Beam1BoneName(GetCraneJointName(ECraneJoints::Beam1));
-		const FName Beam2BoneName(GetCraneJointName(ECraneJoints::Beam2));
-		const FName Beam4BoneName(GetCraneJointName(ECraneJoints::Beam4));
 		const FName NeckBoneName(GetCraneJointName(ECraneJoints::Neck));
 		const FName HeadBoneName(GetCraneJointName(ECraneJoints::Head));
 
 		mComponent->SetBoneLocationByName(RootBoneName, NewLoc, EBoneSpaces::ComponentSpace);
 
 		FVector HeadPos;
-		FVector ColumnPos, BeamsPos, ProjPos;
-		
-		FQuat DeltaQuat;
 		FVector DeltaAxis(0.f);
 		float DeltaAngle = 0.f;
 
-		ColumnPos = mComponent->GetBoneLocation(ColumnsBoneName);
-		BeamsPos = mComponent->GetBoneLocation(BeamsBoneName);
+		FVector ColumnPos = mComponent->GetBoneLocation(ColumnsBoneName);
+		FVector BeamsPos = mComponent->GetBoneLocation(BeamsBoneName);
 
 		{
-			FRotator rot = mComponent->GetBoneRotationByName(ColumnRotationBoneName, EBoneSpaces::ComponentSpace);
+			//
+			// rotate around UP
 
-			FVector DirInPlane = vTarget3 - BeamsPos;
-			DirInPlane.Z = 0.0;
-			DirInPlane.Normalize();
+			FRotator ColumnRot = mComponent->GetBoneRotationByName(ColumnRotationBoneName, EBoneSpaces::ComponentSpace);
+			const FVector DirInPlane = (vTarget3 - BeamsPos).GetSafeNormal2D();
 
 			double AngleRad = FMath::Atan2(FVector::DotProduct(FVector::CrossProduct(FVector::ForwardVector, DirInPlane), FVector::UpVector),
 				FVector::DotProduct(DirInPlane, FVector::ForwardVector));
 			double Angle = FMath::RadiansToDegrees(AngleRad);
 
-			rot.Yaw = 90.0 + Angle;
-			mComponent->SetBoneRotationByName(ColumnRotationBoneName, rot, EBoneSpaces::ComponentSpace);
+			ColumnRot.Yaw = 90.0 + Angle;
+			mComponent->SetBoneRotationByName(ColumnRotationBoneName, ColumnRot, EBoneSpaces::ComponentSpace);
+		
+			const FVector HeadDir = FVector::ForwardVector.RotateAngleAxisRad(AngleRad, FVector::UpVector).GetSafeNormal();
+		
+			//
+			// dist from gravity pivot up to camera pivot
 
-			HeadPos = FVector::ForwardVector;
-			FVector HeadDir = HeadPos.RotateAngleAxisRad(AngleRad, FVector::UpVector);
-			HeadDir.Normalize();
+			// Y is a local down direction in the skeleton
+			const float GravityPivotZ = mComponent->GetRefPosePosition(mComponent->GetBoneIndex(GravityBoneName)).Y;
+			const float NeckPivotZ = mComponent->GetRefPosePosition(mComponent->GetBoneIndex(NeckBoneName)).Length();
+			const float CameraPivotZ = mComponent->GetRefPosePosition(mComponent->GetBoneIndex(HeadBoneName)).Length();
 
-			constexpr double DistCamHeadAndNeck{ 50.0 };
+			const float DistCamHeadAndNeck = FMath::Abs(GravityPivotZ) + FMath::Abs(CameraPivotZ) + FMath::Abs(NeckPivotZ);
+
+			//
+			// rotate beams up/down
+
 			FVector DirToCam = FVector(vTarget3.X, vTarget3.Y, vTarget3.Z + DistCamHeadAndNeck) - BeamsPos;
 			DirToCam.Normalize();
 
 			AngleRad = FMath::Acos(FVector::DotProduct(DirToCam, HeadDir));
 			Angle = FMath::RadiansToDegrees( ((vTarget3.Z + DistCamHeadAndNeck) > BeamsPos.Z) ? AngleRad : -AngleRad);
 
-			rot = mComponent->GetBoneRotationByName(BeamsBoneName, EBoneSpaces::ComponentSpace);
-			rot.Roll = 90.0 + Angle;
-			mComponent->SetBoneRotationByName(BeamsBoneName, rot, EBoneSpaces::ComponentSpace);
+			Angle = FMath::Clamp(Angle, -CraneData->TiltMin, CraneData->TiltMax);
+
+			FRotator BeamsRot = mComponent->GetBoneRotationByName(BeamsBoneName, EBoneSpaces::ComponentSpace);
+			BeamsRot.Roll = 90.0 + Angle;
+			mComponent->SetBoneRotationByName(BeamsBoneName, BeamsRot, EBoneSpaces::ComponentSpace);
+
+			OutCraneData.TiltAngle = Angle;
 		}
 		
 		ColumnPos = mComponent->GetBoneLocation(ColumnsBoneName);
 		BeamsPos = mComponent->GetBoneLocation(BeamsBoneName);
-		HeadPos = ComputeHeadTransform();
+		HeadPos = ComputeHeadWorldTransform();
 
 		//
 		// rotate gravity point
@@ -167,76 +282,69 @@ public:
 		//
 		// beams length
 		
-		HeadPos = ComputeHeadTransform();
+		HeadPos = ComputeHeadWorldTransform();
 
-		DeltaQuat = FQuat::FindBetween(HeadPos - BeamsPos, ProjPos - BeamsPos);
-		DeltaQuat.ToAxisAndAngle(DeltaAxis, DeltaAngle);
+		// we assume crane crane beams can't be placed almost vertically and crane preset has a defined tilt min/max angles setup
+		const float CurrentLength = FVector::Dist(HeadPos, BeamsPos);
+		const float TargetLength = FVector::Dist(vTarget3, BeamsPos);
+		OutCraneData.ExtensionLength = TargetLength;
 
-		if (DeltaAngle < 60.0f)
+		constexpr float Thres{ 0.1f };
+		if (FMath::Abs(CurrentLength - TargetLength) > Thres)
 		{
-			const float l1 = (HeadPos - BeamsPos).Size();
-			const float l2 = (vTarget3 - BeamsPos).Size();
-			const float l = 0.15f * (l1 - l2);
+			TArray<FBeamData, TInlineAllocator<4>> BeamData;
 
-			if (abs(l) > 0.1f)
+			const int32 Beam1 = static_cast<int32>(ECraneJoints::Beam1);
+			const int32 Beam2 = static_cast<int32>(ECraneJoints::Beam2);
+			const int32 Beam5 = static_cast<int32>(ECraneJoints::Beam5);
+
+			for (int32 i = Beam2; i <= Beam5; ++i)
 			{
-				ParentTM = mComponent->GetBoneTransformByName(Beam1BoneName, EBoneSpaces::ComponentSpace);
+				const FName BoneName(GetCraneJointName(static_cast<ECraneJoints>(i)));
+				const int32 BoneIndex = mComponent->GetBoneIndex(BoneName);
 
-				const int32 Beam2 = static_cast<int32>(ECraneJoints::Beam2);
-				const int32 Beam5 = static_cast<int32>(ECraneJoints::Beam5);
+				if (INDEX_NONE == BoneIndex)
+					continue;
 
-				for (int32 i = Beam2; i <= Beam5; ++i)
-				{
-					const FName BoneName(GetCraneJointName(static_cast<ECraneJoints>(i)));
-					
-					if (INDEX_NONE == mComponent->GetBoneIndex(BoneName))
-						continue;
+				const float BeamLength = mComponent->GetBoneLocation(BoneName, EBoneSpaces::ComponentSpace).Z;
+				const float MaxLength = -mComponent->GetRefPosePosition(BoneIndex).Z;
+				constexpr float MinLength{ -2.0f };
 
-					TM = mComponent->GetBoneTransformByName(BoneName, EBoneSpaces::ComponentSpace);
-					TM.SetToRelativeTransform(ParentTM);
-						
-					FVector tr = TM.GetLocation();
-					tr.Z += l;
+				FBeamData Data(BeamLength, MinLength, MaxLength, BoneName);
+				BeamData.Add(MoveTemp(Data));
+			}
 
-					const float MaxLength = mComponent->GetRefPoseTransform(mComponent->GetBoneIndex(BoneName)).GetLocation().Z;
+			const int32 Beam1BoneIndex = mComponent->GetBoneIndex(GetCraneJointName(ECraneJoints::Beam1));
+			const float Beam1Length = -mComponent->GetRefPosePosition(Beam1BoneIndex).Z;
+			
+			CalculateBeamAdjustmentsEqual(BeamData, CurrentLength, TargetLength, Beam1Length);
 
-					if (tr.Z > -2.0f) tr.Z = -2.0f;
-					else if (tr.Z < MaxLength) tr.Z = MaxLength;
+			for (const FBeamData Data : BeamData)
+			{
+				const FName& BoneName = Data.BeamBoneName;
+				
+				ParentTM = mComponent->GetBoneTransformByName(mComponent->GetParentBone(BoneName), EBoneSpaces::ComponentSpace);
 
-					TM.SetLocation(tr);
-					TM = TM * ParentTM;
-						
-					mComponent->SetBoneTransformByName(BoneName, TM, EBoneSpaces::ComponentSpace);
+				TM = mComponent->GetBoneTransformByName(BoneName, EBoneSpaces::ComponentSpace);
+				TM.SetToRelativeTransform(ParentTM);
 
-					ParentTM = TM;	
-				}
+				FVector tr = TM.GetLocation();
+				tr.Z = -Data.Adjustment;
+				
+				TM.SetLocation(tr);
+				TM = TM * ParentTM;
+
+				mComponent->SetBoneTransformByName(BoneName, TM, EBoneSpaces::ComponentSpace);
 			}
 		}
 		
 		//
 		// crane head and neck
 
-		TM = mComponent->GetBoneTransformByName(NeckBoneName, EBoneSpaces::ComponentSpace);
-		ParentTM = mComponent->GetBoneTransformByName(mComponent->GetParentBone(NeckBoneName), EBoneSpaces::ComponentSpace);
-
-		TM.SetToRelativeTransform(ParentTM);
+		mComponent->SetBoneRotationByName(NeckBoneName, NeckRotation.Rotator(), EBoneSpaces::ComponentSpace);		
+		mComponent->ResetBoneTransformByName(HeadBoneName);
+		mComponent->BoneSpaceTransforms[mComponent->GetBoneIndex(HeadBoneName)].SetRotation(FQuat::MakeFromEuler(FVector(RawRotation.Y, 0.0f, 0.0f)));
 		
-		TM = TM * ParentTM;
-		TM.SetRotation(NeckRotation);
-
-		mComponent->SetBoneTransformByName(NeckBoneName, TM, EBoneSpaces::ComponentSpace);
-
-		//
-
-		TM = mComponent->GetBoneTransformByName(HeadBoneName, EBoneSpaces::ComponentSpace);
-		ParentTM = mComponent->GetBoneTransformByName(mComponent->GetParentBone(HeadBoneName), EBoneSpaces::ComponentSpace);
-
-		TM.SetToRelativeTransform(ParentTM);
-		TM.SetRotation(FQuat::MakeFromEuler(FVector(RawRotation.Y, 0.0f, 0.0f)));
-
-		TM = TM * ParentTM;
-		mComponent->SetBoneTransformByName(HeadBoneName, TM, EBoneSpaces::ComponentSpace);
-
 		return true;
 	}
 };
@@ -495,7 +603,7 @@ void ATechnocraneRig::UpdatePreviewMeshes()
 			
 		}
 		
-		TechnocraneRig.Impl->Compute(GetWorld(), Target.GetLocation(), TrackPosition, RawRotation, NeckQ);
+		TechnocraneRig.Impl->Compute(GetWorld(), SimulationData, Target.GetLocation(), TrackPosition, RawRotation, NeckQ);
 	}
 }
 #endif
