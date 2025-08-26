@@ -24,6 +24,12 @@ void UTechnocraneRigAnimInstance::ConfigureAnimInstance(TWeakObjectPtr<AActor> I
 	Proxy.ConfigureAnimInstanceProxy(InTargetActor, InCraneData, InCameraPivotOffset, bShowDebug);
 }
 
+void UTechnocraneRigAnimInstance::GetSimulationOutData(FCraneSimulationData& OutData)
+{
+	FTechnocraneRigInstanceProxy& Proxy = GetProxyOnGameThread<FTechnocraneRigInstanceProxy>();
+	OutData = Proxy.CraneData;
+}
+
 FAnimInstanceProxy* UTechnocraneRigAnimInstance::CreateAnimInstanceProxy()
 {
 	return new FTechnocraneRigInstanceProxy(this, &AnimNode);

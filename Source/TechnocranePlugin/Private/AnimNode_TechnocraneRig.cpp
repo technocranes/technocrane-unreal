@@ -250,9 +250,6 @@ void FAnimNode_TechnocraneRig::Evaluate_AnyThread(FPoseContext& Output)
 	FCSPose<FCompactPose> ComponentPose;
 	ComponentPose.InitPose(Output.Pose);
 	
-	// TODO: deliver back to rig actor ?!
-	FCraneSimulationData OutCraneData;
-
 	const float ZOffset = CraneData.ZOffsetOnGround;		// make it appear in the right place
 	const FVector NewLoc(0.0f, TrackPosition, ZOffset);
 

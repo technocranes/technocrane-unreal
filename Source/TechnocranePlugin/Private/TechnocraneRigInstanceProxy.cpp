@@ -60,6 +60,8 @@ bool FTechnocraneRigInstanceProxy::Evaluate(FPoseContext& Output)
 	
 	/* This evaluates UAnimNode_TechnocraneRig */
 	AnimNode->Evaluate_AnyThread(Output);
+	CraneData = AnimNode->OutCraneData;
+	
 	return true;
 }
 

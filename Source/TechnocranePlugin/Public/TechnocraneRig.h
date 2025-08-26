@@ -105,12 +105,12 @@ public:
 	FCraneSimulationData	SimulationData;
 
 private:
-#if WITH_EDITORONLY_DATA
+
 	bool PreloadPreviewMeshes();
 	void UpdatePreviewMeshes();
 	bool PreloadTracksMesh();
 	void UpdateTracksMesh();
-#endif
+
 	void UpdateCraneComponents();
 
 	/** Root component to give the whole actor a transform. */
@@ -121,27 +121,24 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Crane Components")
 	FComponentReference		TargetComponent;
 
-#if WITH_EDITORONLY_DATA
 	/** Preview meshes for visualization */
-	UPROPERTY()
+	UPROPERTY(Transient)
 	TArray<USkeletalMesh*> PreviewMeshes;
 	
-	UPROPERTY()
+	UPROPERTY(Transient)
 	USkeletalMeshComponent* MeshComponent{ nullptr };
-	//UPoseableMeshComponent* MeshComponent{ nullptr };
 	
 	/** Preview mesh of crane tracks */
-	UPROPERTY()
+	UPROPERTY(Transient)
 	UStaticMesh* CraneTracksMesh{ nullptr };
 
 	/** mesh component for tracks */
-	UPROPERTY()
+	UPROPERTY(Transient)
 	UStaticMeshComponent* CraneTracksMeshComponent{ nullptr };
 
 	/** Data table with crane presets, the asset is part of technocrane plugin content */
-	UPROPERTY()
+	UPROPERTY(Transient)
 	UDataTable* CranesData{ nullptr };
-#endif
 
 private:
 	FTechnocraneRig				TechnocraneRig;

@@ -36,6 +36,8 @@ public:
 	*/
 	void ConfigureAnimInstance(TWeakObjectPtr<AActor> InTargetActor, FCraneData& InCraneData, const FVector& InCameraPivotOffset, bool bShowDebug);
 	
+	void GetSimulationOutData(FCraneSimulationData& OutData);
+
 protected:
 	/** UAnimInstance interface */
 	virtual void NativeInitializeAnimation() override;

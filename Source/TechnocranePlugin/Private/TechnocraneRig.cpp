@@ -85,8 +85,6 @@ ATechnocraneRig::ATechnocraneRig()
 	TransformComponent = CreateDefaultSubobject<USceneComponent>(TEXT("TransformComponent"));
 	RootComponent = TransformComponent;
 
-#if WITH_EDITORONLY_DATA
-
 	MeshComponent = nullptr;
 
 	// create preview meshes
@@ -105,10 +103,7 @@ ATechnocraneRig::ATechnocraneRig()
 			CranesData = nullptr;
 		}
 	}
-#endif
 }
-
-#if WITH_EDITORONLY_DATA
 
 bool ATechnocraneRig::PreloadPreviewMeshes()
 {
@@ -234,14 +229,11 @@ void ATechnocraneRig::UpdatePreviewMeshes()
 		}
 	}
 }
-#endif
 
 void ATechnocraneRig::UpdateCraneComponents()
 {
-#if WITH_EDITORONLY_DATA
 	UpdatePreviewMeshes();
 	UpdateTracksMesh();
-#endif
 }
 
 // Called when the game starts or when spawned
@@ -257,6 +249,17 @@ void ATechnocraneRig::Tick(float DeltaTime)
 
 	// feed exposed API into underlying components
 	UpdateCraneComponents();
+
+	// update simulation stats
+	if (MeshComponent)
+	{
+		TObjectPtr<UTechnocraneRigAnimInstance> AnimInstance = Cast<UTechnocraneRigAnimInstance>(MeshComponent->GetAnimInstance());
+
+		if (AnimInstance)
+		{
+			AnimInstance->GetSimulationOutData(SimulationData);
+		}
+	}
 }
 
 #if WITH_EDITOR

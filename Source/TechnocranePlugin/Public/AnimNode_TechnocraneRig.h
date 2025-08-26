@@ -32,11 +32,17 @@ struct FAnimNode_TechnocraneRig : public FAnimNode_Base
 	UPROPERTY(BlueprintReadWrite, transient, Category = Settings, meta=(PinShownByDefault))
 	TWeakObjectPtr<ACineCameraActor> TargetCameraActor = nullptr;
 	
+	/** local offset from a camera origin to attach with a crane target */
 	UPROPERTY(BlueprintReadWrite, transient, Category = Settings, meta = (PinShownByDefault))
 	FVector CameraPivotOffset = FVector::ZeroVector;
 
+	/** selected crane preset data */
 	UPROPERTY(BlueprintReadWrite, transient, Category = Settings, meta = (PinShownByDefault))
 	FCraneData CraneData;
+
+	/** gather information about the last simulation, like tilt angle, ground height, etc. */
+	UPROPERTY(BlueprintReadOnly, transient, Category = Output, meta = (PinShownByDefault))
+	FCraneSimulationData OutCraneData;
 
 	UPROPERTY(BlueprintReadWrite, transient, Category = Settings, meta = (PinShownByDefault))
 	bool bShowDebug = false;

@@ -40,4 +40,6 @@ public:
 	void ConfigureAnimInstanceProxy(TWeakObjectPtr<AActor> InTargetActor, FCraneData& InCraneData, const FVector& InCameraPivotOffset, bool bShowDebug);
 
 	FAnimNode_TechnocraneRig* AnimNode = nullptr;
+	FCraneSimulationData	CraneData;
+	
 };
