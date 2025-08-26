@@ -79,11 +79,20 @@ The purpose of the rig is to calculate all necessary crane rotations and beam ex
 
 The Target Component property specifies the Cine Camera component that will be used as the crane’s target.
 
+[![TechnocraneRigProps](https://github.com/technocranes/technocrane-unreal/blob/master/Images/technocranerig_props.png)]()  
+[![TechnocraneRigProps](https://github.com/technocranes/technocrane-unreal/blob/master/Images/technocranerig_simulation_output.png)]()  
+
 The Point of Attachment defines the connection between the camera pivot point and the center of the crane head. The pivot point can be adjusted with the Camera Pivot Offset property, which applies an offset in the local space of the given camera.
+
+[![TechnocraneRigShowDebug](https://github.com/technocranes/technocrane-unreal/blob/master/Images/camera_pivot_show_debug.jpg)]()  
 
 The TechnocraneRig Actor is implemented in C++ and can also be visualized using one of the predefined crane presets. These presets are defined by the CranesData asset and include prepared skeletal meshes of each crane, located in the plugin’s content folder.
 
+[![TechnocraneRigDataAsset](https://github.com/technocranes/technocrane-unreal/blob/master/Images/cranes_data_asset.jpg)]()  
+
 Additionally, there is a Blueprint-based implementation of a camera crane in the Technodolly10 content folder. This version uses a Control Rig with an effector serving as the camera target, along with a graph that simulates the crane following that target.
+
+[![TechnocraneRigModule](https://github.com/technocranes/technocrane-unreal/blob/master/Images/technocranerig_rigmodule.png)]()  
 
 # Video Tutorial
 
