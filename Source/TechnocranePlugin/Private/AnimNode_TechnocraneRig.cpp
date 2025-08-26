@@ -18,6 +18,9 @@
 #include <TechnocraneCameraComponent.h>
 #include "TechnocraneShared.h"
 
+#include "Features/IModularFeatures.h"
+#include "Interfaces/IPluginManager.h"
+
 #include "LiveLinkComponentController.h"
 #include "ILiveLinkClient.h"
 #include "LiveLinkTypes.h"
@@ -27,8 +30,6 @@
 #include "LiveLinkTechnocraneTypes.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AnimNode_TechnocraneRig)
-
-UE_DISABLE_OPTIMIZATION
 
 namespace NTechnocraneRigInternal
 {
@@ -540,5 +541,3 @@ bool FAnimNode_TechnocraneRig::Serialize(FArchive& Ar)
 void FAnimNode_TechnocraneRig::PostSerialize(const FArchive& Ar)
 {
 }
-
-UE_ENABLE_OPTIMIZATION

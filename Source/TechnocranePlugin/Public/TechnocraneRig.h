@@ -15,6 +15,7 @@
 
 class USkeletalMeshComponent;
 class UPoseableMeshComponent;
+class USkeletalMesh;
 
 /** Shake start offset parameter */
 UENUM(BlueprintType)
