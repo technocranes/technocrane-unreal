@@ -72,6 +72,18 @@ Every Frame Data contains property values
 
 [![FrameDataPrint](https://github.com/technocranes/technocrane-unreal/blob/master/Images/frame_data_print.jpg)]()
 
+# Technocrane Rig
+
+There is a special TechnocraneRig Actor that can be placed in the world and used to simulate the operation of a crane following a specified camera world position.
+The purpose of the rig is to calculate all necessary crane rotations and beam extensions required to reach the target camera location at the point of attachment to the crane.
+
+The Target Component property specifies the Cine Camera component that will be used as the crane’s target.
+
+The Point of Attachment defines the connection between the camera pivot point and the center of the crane head. The pivot point can be adjusted with the Camera Pivot Offset property, which applies an offset in the local space of the given camera.
+
+The TechnocraneRig Actor is implemented in C++ and can also be visualized using one of the predefined crane presets. These presets are defined by the CranesData asset and include prepared skeletal meshes of each crane, located in the plugin’s content folder.
+
+Additionally, there is a Blueprint-based implementation of a camera crane in the Technodolly10 content folder. This version uses a Control Rig with an effector serving as the camera target, along with a graph that simulates the crane following that target.
 
 # Video Tutorial
 
