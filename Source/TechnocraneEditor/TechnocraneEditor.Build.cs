@@ -14,7 +14,7 @@ namespace UnrealBuildTool.Rules
         public TechnocraneEditor(ReadOnlyTargetRules Target) : base(Target)
 		{
             PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-            
+
             bLegacyPublicIncludePaths = false;
 
             PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Public"));

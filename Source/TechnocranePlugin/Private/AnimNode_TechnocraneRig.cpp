@@ -296,7 +296,7 @@ void FAnimNode_TechnocraneRig::Evaluate_AnyThread(FPoseContext& Output)
 		FVector DirToCam = FVector(vTarget3.X, vTarget3.Y, vTarget3.Z + DistCamHeadAndNeck) - BeamsPos;
 		DirToCam.Normalize();
 
-		FVector vTarget3Norm = vTarget3.GetSafeNormal2D();
+		FVector vTarget3Norm = (vTarget3 - BeamsPos).GetSafeNormal2D();
 		float Angle = NTechnocraneRigInternal::GetSignedAngle(DirToCam, vTarget3Norm, ColumnTransform.GetRotation().GetForwardVector());
 		Angle = FMath::RadiansToDegrees(Angle);
 		Angle = FMath::Clamp(Angle, -CraneData.TiltMin, CraneData.TiltMax);

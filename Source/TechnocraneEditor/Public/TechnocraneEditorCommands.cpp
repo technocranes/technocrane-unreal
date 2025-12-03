@@ -11,7 +11,7 @@
 
 void FTechnocraneEditorCommands::RegisterCommands()
 {
-	UI_COMMAND(PluginAction, "TechnocraneEditor", "Add Tracker to a camera", EUserInterfaceActionType::Button, FInputGesture());
+	UI_COMMAND(PluginAction, "TechnocraneEditor", "Add Tracker to a camera", EUserInterfaceActionType::Button, FInputChord());
 }
 
 #undef LOCTEXT_NAMESPACE // "TechnocraneEditor"
